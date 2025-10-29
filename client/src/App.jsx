@@ -1,174 +1,145 @@
-/* global google */
 import { useEffect, useState } from 'react'
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
+import Navbar from './components/Navbar'
+import Login from './pages/auth/Login'
+import Signup from './pages/auth/Signup'
+import ForgotPassword from './pages/auth/ForgotPassword'
+import ResetPassword from './pages/auth/ResetPassword'
+import PreferencesOnboarding from './pages/auth/PreferencesOnboarding'
+import AccountSettings from './pages/AccountSettings'
+import Home from './pages/Home'
 
 function App() {
-  const [status, setStatus] = useState('Checking backend...')
-  const [error, setError] = useState('')
-  const [form, setForm] = useState({ name: '', email: '', password: '' })
-  const [authResult, setAuthResult] = useState('')
+  const [user, setUser] = useState(null)
+  const location = useLocation()
+  const navigate = useNavigate()
 
+  // Load existing token on first mount and hydrate user
   useEffect(() => {
-    const checkBackend = async () => {
+    const token = localStorage.getItem('token')
+    if (!token || user) return
+
+    const fetchUser = async () => {
       try {
-        const res = await fetch('/api/health')
+        const res = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         if (!res.ok) {
-          throw new Error(`Request failed with status ${res.status}`)
+          localStorage.removeItem('token')
+          setUser(null)
+          return
         }
         const data = await res.json()
-        setStatus(`Backend status: ${data.status}`)
-      } catch (err) {
-        setError('Could not reach backend')
-        setStatus('')
+        setUser(data.user)
+      } catch {
+        // network error, keep token but no user
       }
     }
 
-    checkBackend()
-  }, [])
+    fetchUser()
+  }, [user])
 
-  useEffect(() => {
-    const initGoogle = () => {
-      if (!window.google) {
-        setTimeout(initGoogle, 100)
-        return
-      }
+  const handleAuthSuccess = (data) => {
+    if (!data || !data.token || !data.user) return
+    localStorage.setItem('token', data.token)
+    setUser(data.user)
 
-      const buttonElement = document.getElementById('google-button')
-      if (!buttonElement) {
-        setTimeout(initGoogle, 100)
-        return
-      }
-
-      try {
-        google.accounts.id.initialize({
-          client_id: '804265354120-k7vhqk03er8vcfslqsokpgbk4p7kqmpb.apps.googleusercontent.com',
-          callback: async (response) => {
-            try {
-              const res = await fetch('/api/auth/google', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ credential: response.credential }),
-              })
-              const data = await res.json()
-              if (!res.ok) {
-                setAuthResult(`Google error: ${data.message || 'unknown error'}`)
-                return
-              }
-              setAuthResult(`Logged in with Google as ${data.user.email}`)
-              localStorage.setItem('token', data.token)
-            } catch {
-              setAuthResult('Google login request failed')
-            }
-          },
-        })
-
-        google.accounts.id.renderButton(buttonElement, {
-          theme: 'outline',
-          size: 'large',
-        })
-      } catch (err) {
-        console.error('Google button error:', err)
-      }
-    }
-
-    initGoogle()
-  }, [])
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleRegister = async (e) => {
-    e.preventDefault()
-    setAuthResult('')
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setAuthResult(`Register error: ${data.message || 'unknown error'}`)
-        return
-      }
-      setAuthResult(`Registered as ${data.user.email}`)
-    } catch {
-      setAuthResult('Register request failed')
+    const hasGenres = Array.isArray(data.user.genres) && data.user.genres.length > 0
+    if (!hasGenres) {
+      navigate('/onboarding/preferences', { replace: true })
+    } else {
+      navigate('/', { replace: true })
     }
   }
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setAuthResult('')
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setAuthResult(`Login error: ${data.message || 'unknown error'}`)
-        return
-      }
-      setAuthResult(`Logged in as ${data.user.email}`)
-      localStorage.setItem('token', data.token)
-    } catch {
-      setAuthResult('Login request failed')
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setUser(null)
+  }
+
+  const isAuthenticated = !!user
+
+  const ProtectedRoute = ({ children }) => {
+    if (!isAuthenticated) {
+      return <Navigate to="/login" replace />
     }
+    return children
   }
 
   return (
-    <div className="min-h-screen bg-dark text-white p-8">
-      <h1 className="text-3xl font-semibold mb-4">Soundscape</h1>
-      <p className="text-lg mb-2">{status}</p>
-      {error && <p className="text-red-400">{error}</p>}
-      <div className="mt-8 max-w-md space-y-4">
-        <h2 className="text-2xl font-medium">Dummy Auth Tester</h2>
-        <form className="space-y-2" onSubmit={handleRegister}>
-          <input
-            className="w-full p-2 rounded bg-gray-800 text-white"
-            placeholder="Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
+    <div className="min-h-screen bg-dark text-white">
+      <Navbar
+        isAuthenticated={isAuthenticated}
+        onLogout={handleLogout}
+        user={user}
+      />
+
+      <main className="max-w-5xl mx-auto px-4 pb-12">
+        {location.pathname === '/' && (
+          <header className="pt-10 text-center">
+            <h1 className="text-4xl font-semibold mb-2">Soundscape</h1>
+            <p className="text-sm text-gray-300">
+              Discover live concerts, immersive soundscapes, and
+              community-curated events.
+            </p>
+          </header>
+        )}
+
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
           />
-          <input
-            className="w-full p-2 rounded bg-gray-800 text-white"
-            placeholder="Email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Login onAuthSuccess={handleAuthSuccess} />
+              )
+            }
           />
-          <input
-            className="w-full p-2 rounded bg-gray-800 text-white"
-            placeholder="Password"
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
+          <Route
+            path="/signup"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Signup onAuthSuccess={handleAuthSuccess} />
+              )
+            }
           />
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
-            >
-              Register
-            </button>
-            <button
-              type="button"
-              onClick={handleLogin}
-              className="px-4 py-2 bg-green-600 rounded hover:bg-green-500"
-            >
-              Login
-            </button>
-          </div>
-        </form>
-        <div id="google-button" className="mt-4" />
-        {authResult && <p className="mt-2 text-sm">{authResult}</p>}
-      </div>
+          <Route
+            path="/onboarding/preferences"
+            element={
+              <ProtectedRoute>
+                <PreferencesOnboarding user={user} onUserUpdate={setUser} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <AccountSettings
+                  user={user}
+                  onLogout={handleLogout}
+                  onUserUpdate={setUser}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
     </div>
   )
 }
