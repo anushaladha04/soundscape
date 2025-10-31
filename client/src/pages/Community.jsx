@@ -89,7 +89,7 @@ export default function Community() {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric',
       });
     } catch {
@@ -101,7 +101,7 @@ export default function Community() {
     return (
       <div className="min-h-screen bg-dark text-white p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Your Community</h1>
+          <h1 className="text-3xl font-bold mb-8 text-red-500">Your Community</h1>
           <div className="text-center py-12">
             <p className="text-light-gray">Loading posts...</p>
           </div>
@@ -130,17 +130,20 @@ export default function Community() {
   }
 
   return (
-    <div className="min-h-screen bg-dark text-white p-8">
+    <div className="min-h-screen bg-[#0f0f0f] text-white py-16 px-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Your Community</h1>
+        <div className="mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Your Community</h1>
+          <p className="text-gray-400">Discover trending concerts and verified community recommendations</p>
+        </div>
 
         {posts.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-light-gray text-lg mb-4">No posts yet.</p>
-            <p className="text-medium-gray">Be the first to share a concert event!</p>
+            <p className="text-gray-400 text-lg mb-4">No posts yet.</p>
+            <p className="text-gray-500">Be the first to share a concert event!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4 w-full">
             {posts.map((post) => {
               const userVote = userVotes[post._id];
               const isVoting = votingPostId === post._id;
@@ -150,73 +153,74 @@ export default function Community() {
               return (
                 <div
                   key={post._id}
-                  className="bg-medium-gray border border-light-gray rounded-lg p-6 hover:border-primary transition-colors"
+                  className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg overflow-hidden hover:border-[#ff6b35] transition-colors cursor-pointer group flex flex-col"
                 >
-                  <h2 className="text-xl font-bold mb-2 text-primary">{post.eventTitle}</h2>
-                  <p className="text-lg font-semibold mb-1">{post.artistName}</p>
-                  <p className="text-sm text-light-gray mb-4">{post.genre}</p>
+                  <div className="p-4 flex-1 flex flex-col">
+                    {/* Genre Badge */}
+                    <p className="text-xs text-[#ff6b35] font-semibold mb-1 uppercase">
+                      {post.genre}
+                    </p>
 
-                  <div className="space-y-2 text-sm mb-4">
-                    <div className="flex items-start gap-2">
-                      <span className="text-primary">📅</span>
-                      <div>
-                        <p className="font-medium">{formatDate(post.date)}</p>
-                        <p className="text-light-gray">{post.time}</p>
-                      </div>
+                    {/* Event Title */}
+                    <h3 className="font-bold text-lg mb-1 line-clamp-2 text-white">
+                      {post.eventTitle}
+                    </h3>
+
+                    {/* Artist Name */}
+                    <p className="text-sm text-gray-400 mb-3">{post.artistName}</p>
+
+                    {/* Date, Venue, Location */}
+                    <div className="space-y-2 text-sm text-gray-400 mb-4">
+                      <p>{formatDate(post.date)}</p>
+                      <p>{post.venue}</p>
+                      <p>{post.city}, {post.state}</p>
                     </div>
 
-                    <div className="flex items-start gap-2">
-                      <span className="text-primary">📍</span>
-                      <div>
-                        <p className="font-medium">{post.venue}</p>
-                        <p className="text-light-gray">
-                          {post.address}, {post.city}, {post.state}
-                          {post.zipCode && ` ${post.zipCode}`}
-                        </p>
+                    {/* Voting Section */}
+                    <div className="border-t border-[#2a2a2a] pt-4 mt-auto">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVote(post._id, 'like');
+                          }}
+                          disabled={isVoting}
+                          className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${
+                            userVote === 'like'
+                              ? 'bg-green-600 text-white'
+                              : 'bg-[#0f0f0f] text-white hover:bg-green-600/20'
+                          } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          style={{
+                            border: '1px solid #2a2a2a'
+                          }}
+                        >
+                          <span>👍</span>
+                          <span className="text-sm">{likes}</span>
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVote(post._id, 'dislike');
+                          }}
+                          disabled={isVoting}
+                          className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${
+                            userVote === 'dislike'
+                              ? 'bg-red-600 text-white'
+                              : 'bg-[#0f0f0f] text-white hover:bg-red-600/20'
+                          } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          style={{
+                            border: '1px solid #2a2a2a'
+                          }}
+                        >
+                          <span>👎</span>
+                          <span className="text-sm">{dislikes}</span>
+                        </button>
+
+                        {isVoting && (
+                          <span className="text-xs text-gray-500">Voting...</span>
+                        )}
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Voting Section */}
-                  <div className="border-t border-light-gray pt-4 mt-4">
-                    <div className="flex items-center gap-4">
-                      <button
-                        onClick={() => handleVote(post._id, 'like')}
-                        disabled={isVoting}
-                        className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${
-                          userVote === 'like'
-                            ? 'bg-green-600 text-white'
-                            : 'bg-dark text-white hover:bg-green-600/20'
-                        } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        style={{
-                          backgroundColor: userVote === 'like' ? '#16a34a' : '#0f0f0f',
-                          border: '1px solid #2a2a2a'
-                        }}
-                      >
-                        <span>👍</span>
-                        <span>{likes}</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleVote(post._id, 'dislike')}
-                        disabled={isVoting}
-                        className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${
-                          userVote === 'dislike'
-                            ? 'bg-red-600 text-white'
-                            : 'bg-dark text-white hover:bg-red-600/20'
-                        } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        style={{
-                          backgroundColor: userVote === 'dislike' ? '#dc2626' : '#0f0f0f',
-                          border: '1px solid #2a2a2a'
-                        }}
-                      >
-                        <span>👎</span>
-                        <span>{dislikes}</span>
-                      </button>
-
-                      {isVoting && (
-                        <span className="text-sm text-light-gray">Voting...</span>
-                      )}
                     </div>
                   </div>
                 </div>
