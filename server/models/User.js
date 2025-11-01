@@ -6,16 +6,15 @@ const { Schema, model, models, Types } = mongoose;
 
 const userSchema = new Schema(
   {
-    user_id: {
-      type: Schema.Types.ObjectId,
-      unique: true,
-      default: () => new Types.ObjectId(),
-    },
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password_hash: { type: String },
-    googleID: { type: String, index: true },
-    genre_pref: [{ type: String }],
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true, minlength: 8 },
+    googleId: { type: String },
+    genres: { type: [String], default: [] },
+    emailVerified: { type: Boolean, default: false },
+    emailVerificationToken: { type: String },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true }
 );
