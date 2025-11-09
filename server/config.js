@@ -7,5 +7,6 @@ export const config = {
   mongoUri: process.env.MONGODB_URI || "",
   jwtSecret: process.env.JWT_SECRET || "change-me-in-prod",
   googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+  ticketmasterApiKey: process.env.TICKETMASTER_API_KEY || "",
 };
 
