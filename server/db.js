@@ -1,10 +1,8 @@
 // server/db.js
 import mongoose from "mongoose";
-import dotenv from "dotenv";
+import { config } from "./config.js";
 
-dotenv.config();  // ✅ loads .env from server/.env
-
-const uri = process.env.MONGODB_URI;
+const uri = config.mongoUri;
 
 export const connectDB = async () => {
   if (!uri) {
