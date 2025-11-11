@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
-import { User } from "../models/User.js";
+import User from "../models/User.js";
 import { config } from "../config.js";
 
 const createToken = (userId) => {

@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { User } from "../models/User.js";
+import User from "../models/User.js";
 import { config } from "../config.js";
 
 const TM_BASE_URL = "https://app.ticketmaster.com/discovery/v2/events.json";
