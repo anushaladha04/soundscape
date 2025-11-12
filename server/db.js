@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { config } from "./config.js";
 
-const uri = process.env.MONGODB_URI;
+const uri = config.mongoUri;
 
 export const connectDB = async () => {
   if (!uri) {
