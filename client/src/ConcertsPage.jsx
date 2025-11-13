@@ -1,7 +1,7 @@
 // client/src/ConcertsPage.jsx
 import { useState, useEffect } from "react";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6;
 const API_BASE = "http://localhost:5050/api";
 
 export default function ConcertsPage({ onBookmarkCountChange }) {
@@ -182,7 +182,7 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
           ? "text-yellow-400"
           : "text-gray-400 hover:text-yellow-300")
       }
-      fill="none"
+      fill={active ? "currentColor" : "none"}
       stroke="currentColor"
       strokeWidth="2"
     >
@@ -343,7 +343,7 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
 
                     {/* Genre - uppercase, red color */}
                     {ev.genre && (
-                      <p className="text-xs font-semibold text-red-500 mb-2 uppercase tracking-wide">
+                      <p className="text-xs font-semibold text-[#f26f5e] mb-2 uppercase tracking-wide">
                         {ev.genre}
                       </p>
                     )}
@@ -369,7 +369,7 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-8 flex items-center gap-4">
+              <div className="mt-8 flex items-center justify-center gap-4">
                 <button
                   type="button"
                   onClick={handlePrev}

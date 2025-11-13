@@ -169,7 +169,7 @@ export default function BookmarksPage({ onBookmarkCountChange }) {
 
               {/* Genre - uppercase, red color */}
               {ev.genre && (
-                <p className="text-xs font-semibold text-red-500 mb-2 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-[#f26f5e] mb-2 uppercase tracking-wide">
                   {ev.genre}
                 </p>
               )}
