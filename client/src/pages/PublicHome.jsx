@@ -73,7 +73,7 @@ const PublicHome = () => {
             </p>
             <h4 className="font-semibold">Your Community</h4>
             <p className="text-xs text-neutral-400">
-              Learn about local artists, underground vanues, and pop-up 
+              Learn about local artists, underground venues, and pop-up 
               experiences in your area through the Soundscape community.
             </p>
           </div>
