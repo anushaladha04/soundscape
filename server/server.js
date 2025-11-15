@@ -5,7 +5,13 @@ import apiRoutes from "./routes/index.js";
 
 const app = express();
 
-app.use(cors());
+// Allow frontend (Vite dev server) to send cookies/auth to this API
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use((req, res, next) => {

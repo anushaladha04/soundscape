@@ -1,6 +1,7 @@
+// server/config.js
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config(); // loads server/.env
 
 export const config = {
   port: process.env.PORT || 5050,
@@ -9,4 +10,3 @@ export const config = {
   googleClientId: process.env.GOOGLE_CLIENT_ID || "",
   ticketmasterApiKey: process.env.TICKETMASTER_API_KEY || "",
 };
-

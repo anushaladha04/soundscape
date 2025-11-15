@@ -9,9 +9,9 @@ import ResetPassword from './pages/auth/ResetPassword'
 import PreferencesOnboarding from './pages/auth/PreferencesOnboarding'
 import AccountSettings from './pages/AccountSettings'
 import Home from './pages/Home'
-import Bookmarks from './pages/Bookmarks'
+import ConcertsPage from './ConcertsPage'
+import BookmarksPage from './BookmarksPage'
 import Community from './pages/Community'
-import Discover from './pages/Discover'
 import PublicHome from './pages/PublicHome'
 
 function App() {
@@ -91,7 +91,7 @@ function App() {
             path="/discover"
             element={
               <ProtectedRoute>
-                <Discover />
+                <ConcertsPage />
               </ProtectedRoute>
             }
           />
@@ -99,7 +99,7 @@ function App() {
             path="/bookmarks"
             element={
               <ProtectedRoute>
-                <Bookmarks />
+                <BookmarksPage />
               </ProtectedRoute>
             }
           />
