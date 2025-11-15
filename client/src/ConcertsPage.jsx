@@ -1,4 +1,3 @@
-// client/src/ConcertsPage.jsx
 import { useState, useEffect } from "react";
 
 const PAGE_SIZE = 6;
@@ -19,7 +18,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
 
   const [bookmarkedIds, setBookmarkedIds] = useState([]);
 
-  /* ---------- core: fetch events ---------- */
   const fetchEvents = async (pageToUse = page) => {
     setLoading(true);
     setError("");
@@ -53,10 +51,8 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
 
   useEffect(() => {
     fetchEvents(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ---------- fetch genres ---------- */
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -70,7 +66,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
     fetchGenres();
   }, []);
 
-  /* ---------- load user bookmarks ---------- */
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
@@ -85,7 +80,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
         if (!res.ok) return;
 
         const data = await res.json();
-        // API returns an array of Event docs in data.bookmarks
         const events = data.bookmarks || [];
         const ids = events.map((ev) => ev._id).filter(Boolean);
 
@@ -96,10 +90,8 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
       }
     };
     fetchBookmarks();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ---------- search submit ---------- */
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const trimmed = artist.trim();
@@ -110,11 +102,9 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
     fetchEvents(1);
   };
 
-  /* ---------- pagination ---------- */
   const handlePrev = () => page > 1 && fetchEvents(page - 1);
   const handleNext = () => page < totalPages && fetchEvents(page + 1);
 
-  /* ---------- genre filters ---------- */
   const handleToggleGenre = (genre) => {
     setSelectedGenres((prev) =>
       prev.includes(genre)
@@ -125,14 +115,11 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
 
   useEffect(() => {
     fetchEvents(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGenres]);
 
-  /* ---------- bookmarking ---------- */
   const handleToggleBookmark = async (eventId) => {
     const isBookmarked = bookmarkedIds.includes(eventId);
 
-    // optimistic update
     let next;
     if (isBookmarked) {
       next = bookmarkedIds.filter((id) => id !== eventId);
@@ -167,7 +154,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
       }
     } catch (err) {
       console.error(err);
-      // rollback on error
       setBookmarkedIds(bookmarkedIds);
       if (onBookmarkCountChange) onBookmarkCountChange(bookmarkedIds.length);
     }
@@ -186,12 +172,10 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
       stroke="currentColor"
       strokeWidth="2"
     >
-      {/* outline bookmark like your reference */}
       <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
     </svg>
   );
 
-  // Format date as "Dec 15, 2024 at 8:00 PM"
   const formatDate = (dateString, timeString) => {
     if (!dateString) return "Date TBA";
     const date = new Date(dateString);
@@ -200,10 +184,8 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
     const day = date.getDate();
     const year = date.getFullYear();
     
-    // Use time field if available, otherwise extract from date
     let timeStr = "";
     if (timeString && timeString !== "TBA") {
-      // Parse time string (format: "HH:mm:ss" or "HH:mm")
       const timeParts = timeString.split(":");
       if (timeParts.length >= 2) {
         let hours = parseInt(timeParts[0], 10);
@@ -215,7 +197,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
         timeStr = ` at ${hours}:${minutesStr} ${ampm}`;
       }
     } else {
-      // Extract time from date object
       let hours = date.getHours();
       const minutes = date.getMinutes();
       const ampm = hours >= 12 ? "PM" : "AM";
@@ -228,7 +209,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
     return `${month} ${day}, ${year}${timeStr}`;
   };
 
-  // Format location as "Venue, City"
   const formatLocation = (event) => {
     const parts = [];
     if (event.venue) parts.push(event.venue);
@@ -236,7 +216,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
     return parts.length > 0 ? parts.join(", ") : "Location TBA";
   };
 
-  /* ---------- UI ---------- */
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -244,7 +223,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
         <p className="text-sm text-gray-400 mb-6">Browse and filter upcoming events.</p>
 
         <div className="flex gap-8">
-          {/* SIDEBAR */}
           <aside className="w-64 flex-shrink-0">
             <h2 className="text-sm font-semibold mb-4 text-gray-300">Genre</h2>
             <div className="space-y-3">
@@ -276,9 +254,7 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
             </div>
           </aside>
 
-          {/* MAIN CONTENT */}
           <main className="flex-1">
-            {/* Search bar */}
             <form
               onSubmit={handleSearchSubmit}
               className="relative mb-6 max-w-xl"
@@ -320,7 +296,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
               <p className="text-gray-400">No concerts found.</p>
             )}
 
-            {/* cards */}
             <div className="grid grid-cols-2 gap-4">
               {events.map((ev) => {
                 const isBookmarked = bookmarkedIds.includes(ev._id);
@@ -329,7 +304,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
                     key={ev._id}
                     className="relative bg-[#1a1a1a] border border-gray-800 rounded-lg p-5"
                   >
-                    {/* bookmark button */}
                     <button
                       type="button"
                       onClick={() => handleToggleBookmark(ev._id)}
@@ -341,24 +315,20 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
                       <BookmarkIcon active={isBookmarked} />
                     </button>
 
-                    {/* Genre - uppercase, red color */}
                     {ev.genre && (
                       <p className="text-xs font-semibold text-[#f26f5e] mb-2 uppercase tracking-wide">
                         {ev.genre}
                       </p>
                     )}
 
-                    {/* Title */}
                     <h2 className="text-lg font-semibold mb-3 text-white">
                       {ev.artist || ev.name}
                     </h2>
 
-                    {/* Date and Time */}
                     <p className="text-sm text-gray-300 mb-2">
                       {formatDate(ev.date, ev.time)}
                     </p>
 
-                    {/* Location */}
                     <p className="text-sm text-gray-400">
                       {formatLocation(ev)}
                     </p>
@@ -367,7 +337,6 @@ export default function ConcertsPage({ onBookmarkCountChange }) {
               })}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-8 flex items-center justify-center gap-4">
                 <button

@@ -1,4 +1,3 @@
-// client/src/BookmarksPage.jsx
 import { useEffect, useState } from "react";
 
 const API_BASE = "http://localhost:5050/api";
@@ -43,7 +42,6 @@ export default function BookmarksPage({ onBookmarkCountChange }) {
 
   useEffect(() => {
     loadBookmarks();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleUnbookmark = async (eventId) => {
@@ -74,7 +72,6 @@ export default function BookmarksPage({ onBookmarkCountChange }) {
     }
   };
 
-  // Format date as "Dec 15, 2024 at 8:00 PM"
   const formatDate = (dateString, timeString) => {
     if (!dateString) return "Date TBA";
     const date = new Date(dateString);
@@ -108,7 +105,6 @@ export default function BookmarksPage({ onBookmarkCountChange }) {
     return `${month} ${day}, ${year}${timeStr}`;
   };
 
-  // Format location as "Venue, City"
   const formatLocation = (event) => {
     const parts = [];
     if (event.venue) parts.push(event.venue);
@@ -157,7 +153,6 @@ export default function BookmarksPage({ onBookmarkCountChange }) {
               key={ev._id}
               className="relative bg-[#1a1a1a] border border-gray-800 rounded-lg p-5"
             >
-              {/* Bookmark button - yellow filled since it's bookmarked */}
               <button
                 type="button"
                 onClick={() => handleUnbookmark(ev._id)}
@@ -167,24 +162,20 @@ export default function BookmarksPage({ onBookmarkCountChange }) {
                 <BookmarkIcon active={true} />
               </button>
 
-              {/* Genre - uppercase, red color */}
               {ev.genre && (
                 <p className="text-xs font-semibold text-[#f26f5e] mb-2 uppercase tracking-wide">
                   {ev.genre}
                 </p>
               )}
 
-              {/* Title */}
               <h2 className="text-lg font-semibold mb-3 text-white">
                 {ev.artist || ev.name}
               </h2>
 
-              {/* Date and Time */}
               <p className="text-sm text-gray-300 mb-2">
                 {formatDate(ev.date, ev.time)}
               </p>
 
-              {/* Location */}
               <p className="text-sm text-gray-400">
                 {formatLocation(ev)}
               </p>
