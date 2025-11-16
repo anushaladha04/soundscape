@@ -1,12 +1,14 @@
 /* global google */
 import { useEffect, useState } from 'react'
 import './App.css'
+import Recommendations from './components/Recommendations'
 
 function App() {
   const [status, setStatus] = useState('Checking backend...')
   const [error, setError] = useState('')
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [authResult, setAuthResult] = useState('')
+  const [showRecommendations, setShowRecommendations] = useState(false)
 
   useEffect(() => {
     const checkBackend = async () => {
@@ -122,52 +124,81 @@ function App() {
 
   return (
     <div className="min-h-screen bg-dark text-white p-8">
-      <h1 className="text-3xl font-semibold mb-4">Soundscape</h1>
-      <p className="text-lg mb-2">{status}</p>
-      {error && <p className="text-red-400">{error}</p>}
-      <div className="mt-8 max-w-md space-y-4">
-        <h2 className="text-2xl font-medium">Dummy Auth Tester</h2>
-        <form className="space-y-2" onSubmit={handleRegister}>
-          <input
-            className="w-full p-2 rounded bg-gray-800 text-white"
-            placeholder="Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-          />
-          <input
-            className="w-full p-2 rounded bg-gray-800 text-white"
-            placeholder="Email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-          />
-          <input
-            className="w-full p-2 rounded bg-gray-800 text-white"
-            placeholder="Password"
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-          />
-          <div className="flex gap-2">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-semibold">Soundscape</h1>
+          <div className="flex gap-4">
             <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
+              onClick={() => setShowRecommendations(false)}
+              className={`px-4 py-2 rounded ${
+                !showRecommendations ? 'bg-blue-600' : 'bg-gray-700'
+              }`}
             >
-              Register
+              Auth
             </button>
             <button
-              type="button"
-              onClick={handleLogin}
-              className="px-4 py-2 bg-green-600 rounded hover:bg-green-500"
+              onClick={() => setShowRecommendations(true)}
+              className={`px-4 py-2 rounded ${
+                showRecommendations ? 'bg-blue-600' : 'bg-gray-700'
+              }`}
             >
-              Login
+              Recommendations
             </button>
           </div>
-        </form>
-        <div id="google-button" className="mt-4" />
-        {authResult && <p className="mt-2 text-sm">{authResult}</p>}
+        </div>
+
+        {!showRecommendations ? (
+          <div>
+            <p className="text-lg mb-2">{status}</p>
+            {error && <p className="text-red-400">{error}</p>}
+            <div className="mt-8 max-w-md space-y-4">
+              <h2 className="text-2xl font-medium">Dummy Auth Tester</h2>
+              <form className="space-y-2" onSubmit={handleRegister}>
+                <input
+                  className="w-full p-2 rounded bg-gray-800 text-white"
+                  placeholder="Name"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                />
+                <input
+                  className="w-full p-2 rounded bg-gray-800 text-white"
+                  placeholder="Email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                />
+                <input
+                  className="w-full p-2 rounded bg-gray-800 text-white"
+                  placeholder="Password"
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
+                  >
+                    Register
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLogin}
+                    className="px-4 py-2 bg-green-600 rounded hover:bg-green-500"
+                  >
+                    Login
+                  </button>
+                </div>
+              </form>
+              <div id="google-button" className="mt-4" />
+              {authResult && <p className="mt-2 text-sm">{authResult}</p>}
+            </div>
+          </div>
+        ) : (
+          <Recommendations />
+        )}
       </div>
     </div>
   )
