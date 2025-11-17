@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 
-const API_BASE = "http://localhost:5050/api";
+// Use relative API path so Vite's dev proxy (`/api` → backend) handles requests
+// This prevents CORS issues when the frontend runs on http://localhost:5173.
+const API_BASE = "/api";
 
 export default function BookmarksPage({ onBookmarkCountChange }) {
   const [bookmarks, setBookmarks] = useState([]);
