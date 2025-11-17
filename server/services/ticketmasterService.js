@@ -6,7 +6,6 @@ const TM_BASE_URL = "https://app.ticketmaster.com/discovery/v2/events.json";
 
 const mapEvent = (event) => {
   const classifications = event.classifications?.[0];
-  const priceRange = event.priceRanges?.[0];
   const artists = event._embedded?.attractions?.map((a) => a.name) ?? [];
 
   return {
@@ -14,13 +13,6 @@ const mapEvent = (event) => {
     name: event.name,
     artist: artists[0] ?? null,
     genre: classifications?.genre?.name ?? null,
-    priceRange: priceRange
-      ? {
-          min: priceRange.min,
-          max: priceRange.max,
-          currency: priceRange.currency,
-        }
-      : null,
     raw: event,
   };
 };
