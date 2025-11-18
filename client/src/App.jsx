@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import Navbar from './components/Navbar'
@@ -82,13 +83,8 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={
-              <ProtectedRoute>
-                <Home user={user} />
-              </ProtectedRoute>
-            }
+            element={isAuthenticated ? <Home user={user} /> : <PublicHome />}
           />
-          <Route path="/welcome" element={<PublicHome />} />
           <Route
             path="/discover"
             element={
@@ -113,14 +109,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/recommendations-ui"
-            element={
-              <ProtectedRoute>
-                <Recommendations />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/recommendations-ui" element={<Recommendations />} />
           <Route
             path="/login"
             element={
