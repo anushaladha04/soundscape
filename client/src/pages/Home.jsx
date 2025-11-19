@@ -19,7 +19,7 @@ const EVENTS = [
     date: 'April 5 • 8:00 PM',
     image:
       'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    genres: ['Hip-Hop', 'R&B'],
+    genres: ['Hip-Hop/Rap', 'R&B'],
     verified: true,
   },
   {
@@ -51,6 +51,113 @@ const Home = ({ user }) => {
   const [recommendedEvents, setRecommendedEvents] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [bookmarkedIds, setBookmarkedIds] = useState([])
+
+  const API_BASE = '/api'
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Date TBA'
+    const date = new Date(dateString)
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const month = months[date.getMonth()]
+    const day = date.getDate()
+    const year = date.getFullYear()
+    const hoursRaw = date.getHours()
+    const minutes = date.getMinutes()
+    const ampm = hoursRaw >= 12 ? 'PM' : 'AM'
+    let hours = hoursRaw % 12
+    hours = hours || 12
+    const minutesStr = minutes < 10 ? `0${minutes}` : minutes
+    return `${month} ${day}, ${year} at ${hours}:${minutesStr} ${ampm}`
+  }
+
+  const formatLocation = (event) => {
+    const parts = []
+    if (event.venue) parts.push(event.venue)
+    if (event.city) parts.push(event.city)
+    return parts.length > 0 ? parts.join(', ') : 'Location TBA'
+  }
+
+  const BookmarkIcon = ({ active }) => (
+    <svg
+      viewBox="0 0 24 24"
+      className={
+        'w-5 h-5 transition-colors ' +
+        (active ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300')
+      }
+      fill={active ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
+    </svg>
+  )
+
+  // Load existing bookmarks to show active icons
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) return
+
+        const res = await fetch(`${API_BASE}/bookmarks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (!res.ok) return
+
+        const data = await res.json()
+        const events = data.bookmarks || []
+        const ids = events.map((ev) => ev._id).filter(Boolean)
+        setBookmarkedIds(ids)
+      } catch {
+        // ignore bookmark load errors on home
+      }
+    }
+
+    fetchBookmarks()
+  }, [])
+
+  const handleToggleBookmark = async (eventId) => {
+    const isBookmarked = bookmarkedIds.includes(eventId)
+
+    let next
+    if (isBookmarked) {
+      next = bookmarkedIds.filter((id) => id !== eventId)
+    } else {
+      next = [...bookmarkedIds, eventId]
+    }
+    setBookmarkedIds(next)
+
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) throw new Error('Not logged in')
+
+      if (!isBookmarked) {
+        const res = await fetch(`${API_BASE}/bookmarks`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ eventId }),
+        })
+        if (!res.ok) throw new Error('Failed to bookmark')
+      } else {
+        const res = await fetch(`${API_BASE}/bookmarks/${eventId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (!res.ok) throw new Error('Failed to unbookmark')
+      }
+    } catch {
+      // revert optimistic update on error
+      setBookmarkedIds(bookmarkedIds)
+    }
+  }
 
   useEffect(() => {
     if (!hasPreferences) {
@@ -63,7 +170,7 @@ const Home = ({ user }) => {
       setError('')
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('/api/events/recommendations', {
+        const res = await fetch('/api/recommendations', {
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
           },
@@ -73,7 +180,7 @@ const Home = ({ user }) => {
           setError(data.message || 'Failed to load recommendations')
           return
         }
-        setRecommendedEvents(data.events || [])
+        setRecommendedEvents(data.recommendations || [])
       } catch {
         setError('Failed to load recommendations')
       } finally {
@@ -116,7 +223,7 @@ const Home = ({ user }) => {
       </div>
 
       {!hasPreferences ? (
-        <div className="mt-28 text-center space-y-4">
+        <div className="text-center space-y-4">
           <h3 className="text-2xl md:text-3xl font-semibold">
             Get Personalized Recommendations
           </h3>
@@ -132,7 +239,7 @@ const Home = ({ user }) => {
           </button>
         </div>
       ) : (
-        <div className="mt-16 space-y-4">
+        <div className="space-y-4">
           <div className="space-y-1">
             <h3 className="text-xl md:text-2xl font-semibold">
               Recommended For You
@@ -148,44 +255,51 @@ const Home = ({ user }) => {
           {error && !loading && (
             <p className="text-xs text-red-400">{error}</p>
           )}
-          {!loading && !error && (
-            <div className="grid gap-5 md:grid-cols-2">
-              {recommendedEvents.map((event) => (
-                <article
-                  key={event.id}
-                  className="overflow-hidden rounded-2xl border border-[#1c1c1c] bg-[#090909]"
-                >
-                  <div className="relative h-52 overflow-hidden">
-                    {event.image && (
-                      <img
-                        src={event.image}
-                        alt={event.name}
-                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                      />
-                    )}
-                  </div>
+          {!loading && !error && recommendedEvents.length === 0 && (
+            <p className="text-xs text-neutral-400">
+              No recommendations available yet. Try updating your preferences or syncing more events.
+            </p>
+          )}
+          {!loading && !error && recommendedEvents.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recommendedEvents.slice(0, 4).map((event) => {
+                const isBookmarked = bookmarkedIds.includes(event.id)
+                return (
+                  <div
+                    key={event.id}
+                    className="relative bg-[#1a1a1a] border border-gray-800 rounded-lg p-5"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleToggleBookmark(event.id)}
+                      className="absolute top-4 right-4"
+                      aria-label={
+                        isBookmarked ? 'Remove bookmark' : 'Add bookmark'
+                      }
+                    >
+                      <BookmarkIcon active={isBookmarked} />
+                    </button>
 
-                  <div className="space-y-2 px-4 py-3">
-                    <h4 className="text-sm font-semibold">{event.name}</h4>
-                    <p className="text-xs text-neutral-400">
-                      {event.city} {event.venue ? `• ${event.venue}` : ''}
-                    </p>
-                    <p className="text-xs text-neutral-400">
-                      {event.date} {event.time && `• ${event.time}`}
-                    </p>
-                    {event.url && (
-                      <a
-                        href={event.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex text-[11px] text-[#f26f5e] hover:underline"
-                      >
-                        View on Ticketmaster
-                      </a>
+                    {event.genre && (
+                      <p className="text-xs font-semibold text-[#f26f5e] mb-2 uppercase tracking-wide">
+                        {event.genre}
+                      </p>
                     )}
+
+                    <h4 className="text-lg font-semibold mb-3 text-white">
+                      {event.artist || event.name}
+                    </h4>
+
+                    <p className="text-sm text-gray-300 mb-2">
+                      {formatDate(event.date)}
+                    </p>
+
+                    <p className="text-sm text-gray-400">
+                      {formatLocation(event)}
+                    </p>
                   </div>
-                </article>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
