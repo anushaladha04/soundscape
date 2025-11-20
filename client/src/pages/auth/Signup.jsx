@@ -138,7 +138,7 @@ const Signup = ({ onAuthSuccess }) => {
   const allGenres = [
     'Rock',
     'Pop',
-    'Hip-Hop',
+    'Hip-Hop/Rap',
     'Jazz',
     'Electronic',
     'Classical',

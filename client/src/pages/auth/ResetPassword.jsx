@@ -58,7 +58,7 @@ const ResetPassword = () => {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#111111] text-3xl mb-4">
             ♪
           </div>
-          <h1 className="text-3xl font-semibold">Reset password</h1>
+          <h1 className="text-3xl font-semibold">Reset Password</h1>
           <p className="text-sm text-neutral-400">
             Choose a new password for your Soundscape account.
           </p>
