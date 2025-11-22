@@ -100,7 +100,7 @@ function Recommendations() {
     return (
       <div className="max-w-4xl mx-auto p-8">
         <div className="bg-gray-800 rounded-lg p-6 text-center">
-          <h2 className="text-2xl font-semibold mb-4">🎵 Personalized Recommendations</h2>
+          <h2 className="text-2xl font-semibold mb-4">Personalized Recommendations</h2>
           <p className="text-gray-400">Please login to see personalized event recommendations</p>
         </div>
       </div>
@@ -109,7 +109,7 @@ function Recommendations() {
 
   return (
     <div className="max-w-4xl mx-auto p-8">
-      <h2 className="text-3xl font-bold mb-6">🎵 Your Recommendations</h2>
+      <h2 className="text-3xl font-bold mb-6">Your Recommendations</h2>
 
       {/* Genre Preferences Section */}
       <div className="bg-gray-800 rounded-lg p-6 mb-6">
