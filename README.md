@@ -147,6 +147,10 @@ Open your browser and navigate to:
 - **Frontend**: `http://localhost:5173`
 - **Backend API**: `http://localhost:5050`
 
+## Architecture Diagrams
+
+placeholder for images
+
 ## Application Flow
 
 1. **User Registration/Login**
