@@ -131,7 +131,7 @@ export default function Community() {
 
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
-      {/* Community Header */}
+      {/* Community Hea`der */}
       <div className="bg-[#1a1a1a]/30 border-b border-[#2a2a2a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div>
