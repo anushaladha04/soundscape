@@ -11,8 +11,11 @@ export const connectDB = async () => {
   }
 
   try {
-    await mongoose.connect(uri);
-    console.log("MongoDB connected");
+    // Explicitly set database name to 'soundscape'
+    await mongoose.connect(uri, {
+      dbName: 'soundscape'
+    });
+    console.log("MongoDB connected to database: soundscape");
   } catch (err) {
     console.error("MongoDB error:", err);
     process.exit(1);
