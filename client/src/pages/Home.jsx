@@ -309,5 +309,3 @@ const Home = ({ user }) => {
 }
 
 export default Home
-
-

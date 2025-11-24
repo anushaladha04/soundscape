@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import Navbar from './components/Navbar'
+import SubmitPostModal from './components/SubmitPostModal'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import ForgotPassword from './pages/auth/ForgotPassword'
@@ -17,6 +18,8 @@ import Recommendations from './components/Recommendations'
 
 function App() {
   const [user, setUser] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -62,6 +65,21 @@ function App() {
     setUser(null)
   }
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const handlePostSubmitted = () => {
+    // Trigger refresh of Community page if we're on it
+    if (location.pathname === '/community') {
+      setRefreshKey(prev => prev + 1)
+    }
+  }
+
   const isAuthenticated = !!user
 
   const ProtectedRoute = ({ children }) => {
@@ -77,6 +95,7 @@ function App() {
         isAuthenticated={isAuthenticated}
         onLogout={handleLogout}
         user={user}
+        onOpenModal={handleOpenModal}
       />
 
       <main className="max-w-7xl mx-auto px-4 pb-12">
@@ -105,7 +124,7 @@ function App() {
             path="/community"
             element={
               <ProtectedRoute>
-                <Community />
+                <Community key={refreshKey} onOpenModal={handleOpenModal} />
               </ProtectedRoute>
             }
           />
@@ -154,6 +173,12 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+
+      <SubmitPostModal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal}
+        onPostSubmitted={handlePostSubmitted}
+      />
     </div>
   )
 }
