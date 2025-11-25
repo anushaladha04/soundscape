@@ -149,7 +149,12 @@ Open your browser and navigate to:
 
 ## Architecture Diagrams
 
-placeholder for images
+## Component Diagram
+![Component Diagram](Component.png)
+
+## ER Diagram
+![ER Diagram](ER_Diagram.png)
+
 
 ## Application Flow
 
