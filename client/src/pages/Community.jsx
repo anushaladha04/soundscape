@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getUserId } from '../utils/userId';
 
-export default function Community() {
+export default function Community({ onOpenModal }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -99,12 +99,11 @@ export default function Community() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#0f0f0f] text-white">
-        <div className="bg-[#1a1a1a]/30 border-b border-[#2a2a2a]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h1 className="text-4xl font-bold mb-3">Your Community</h1>
-            <p className="text-gray-400 text-lg">Loading posts...</p>
-          </div>
+      <main className="min-h-screen bg-black text-white">
+
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <h1 className="text-3xl font-semibold mb-2">Your Community</h1>
+          <p className="text-gray-400 text-lg">Loading posts...</p>
         </div>
       </main>
     );
@@ -112,39 +111,44 @@ export default function Community() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#0f0f0f] text-white">
-        <div className="bg-[#1a1a1a]/30 border-b border-[#2a2a2a]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h1 className="text-4xl font-bold mb-3">Your Community</h1>
-            <p className="text-red-400">{error}</p>
-            <button
-              onClick={fetchPosts}
-              className="mt-4 px-4 py-2 bg-[#f26f5e] text-white rounded-md hover:bg-[#ff8270]"
-            >
-              Try Again
-            </button>
-          </div>
+      <main className="min-h-screen bg-black text-white">
+
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <h1 className="text-3xl font-semibold mb-2">Your Community</h1>
+          <p className="text-red-400">{error}</p>
+          <button
+            onClick={fetchPosts}
+            className="mt-4 px-4 py-2 bg-[#f26f5e] text-white rounded-md hover:bg-[#ff8270]"
+          >
+            Try Again
+          </button>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white">
-      {/* Community Hea`der */}
-      <div className="bg-[#1a1a1a]/30 border-b border-[#2a2a2a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <main className="min-h-screen bg-black text-white">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Community Header */}
+        <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-3">Your Community</h1>
-            <p className="text-gray-400 text-lg">
+            <h1 className="text-3xl font-semibold mb-2">Your Community</h1>
+            <p className="text-sm text-gray-400">
               Remember these posts are from your fellow community members and are unverified.
             </p>
           </div>
+          {onOpenModal && (
+            <button
+              onClick={onOpenModal}
+              className="px-4 py-2 rounded bg-[#f26f5e] hover:bg-[#ff8270] text-sm font-medium text-white"
+            >
+              Submit a Post
+            </button>
+          )}
         </div>
-      </div>
 
-      {/* Community Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Community Grid */}
         {posts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg mb-4">No posts yet.</p>
@@ -161,7 +165,7 @@ export default function Community() {
               return (
                 <div
                   key={post._id}
-                  className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg overflow-hidden hover:border-[#f26f5e] transition-colors group"
+                  className="border border-[#2a2a2a] rounded-lg overflow-hidden hover:border-[#f26f5e] transition-colors group"
                 >
                   <div className="p-6">
                     {/* Genre Tag */}
