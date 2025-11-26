@@ -59,7 +59,7 @@ const Navbar = ({ isAuthenticated, onLogout, user, onOpenModal }) => {
           </div>
         )}
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-6">
           {isAuthenticated ? (
             <>
               <Link

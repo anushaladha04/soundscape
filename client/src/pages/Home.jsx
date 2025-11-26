@@ -209,14 +209,14 @@ const Home = ({ user }) => {
         <button
           type="button"
           onClick={() => navigate('/discover')}
-          className="px-5 lg:px-4 py-1.5 lg:py-1.5 rounded-xl bg-[#f26f5e] hover:bg-[#ff8270] text-sm md:text-base lg:text-sm"
+          className="px-4 py-2 rounded bg-[#f26f5e] hover:bg-[#ff8270] text-sm font-medium text-white"
         >
           Start Exploring
         </button>
         <button
           type="button"
           onClick={() => navigate('/community')}
-          className="px-5 lg:px-4 py-1.5 lg:py-1.5 rounded-xl border border-gray-600 hover:bg-gray-800 text-sm md:text-base lg:text-sm"
+          className="px-4 py-2 rounded border border-gray-600 hover:bg-gray-800 text-sm font-medium text-white"
         >
           Submit an Event
         </button>

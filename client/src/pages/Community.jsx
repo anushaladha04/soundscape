@@ -202,7 +202,7 @@ export default function Community({ onOpenModal }) {
                             : 'border border-[#2a2a2a] bg-transparent text-gray-300 hover:bg-[#1a1a1a] hover:text-white'
                         } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
-                        <span className="text-base">👍</span>
+                        <span className="text-lg">↑</span>
                         {likes}
                       </button>
                       <button
@@ -213,11 +213,11 @@ export default function Community({ onOpenModal }) {
                         disabled={isVoting}
                         className={`flex items-center gap-1 flex-1 px-3 py-2 rounded-md text-sm transition-colors ${
                           userVote === 'dislike'
-                            ? 'bg-red-600 text-white hover:bg-red-500'
+                            ? 'bg-[#f26f5e] text-white hover:bg-[#ff8270]'
                             : 'border border-[#2a2a2a] bg-transparent text-gray-300 hover:bg-[#1a1a1a] hover:text-white'
                         } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
-                        <span className="text-base">👎</span>
+                        <span className="text-lg">↓</span>
                         {dislikes}
                       </button>
                     </div>

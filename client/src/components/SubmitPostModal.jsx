@@ -198,8 +198,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
             className="p-6 rounded-lg"
             style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(242, 111, 94, 0.3)' }}
           >
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#f26f5e' }}>
-              <span className="text-2xl">🎵</span>
+            <h3 className="text-xl text-white font-bold mb-4 flex items-center gap-2">
               Event Details
             </h3>
 
@@ -258,7 +257,8 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
                   style={{
                     backgroundColor: '#0f0f0f',
-                    border: '1px solid #2a2a2a'
+                    border: '1px solid #2a2a2a',
+                    paddingRight: '2.5rem'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
@@ -282,8 +282,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
             className="p-6 rounded-lg"
             style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(242, 111, 94, 0.3)' }}
           >
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#f26f5e' }}>
-              <span className="text-2xl">📅</span>
+            <h3 className="text-xl text-white font-bold mb-4 flex items-center gap-2">
               Date & Time
             </h3>
 
@@ -335,8 +334,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
             className="p-6 rounded-lg"
             style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(242, 111, 94, 0.3)' }}
           >
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#f26f5e' }}>
-              <span className="text-2xl">📍</span>
+            <h3 className="text-xl text-white font-bold mb-4 flex items-center gap-2">
               Location
             </h3>
 
@@ -460,10 +458,6 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
           >
             {isLoading ? 'Submitting...' : 'Submit Event for Review'}
           </button>
-
-          <p className="text-xs text-center" style={{ color: '#9ca3af' }}>
-            All submissions are reviewed by our community moderators before being published.
-          </p>
         </form>
       </div>
     </div>
