@@ -150,7 +150,7 @@ Open your browser and navigate to:
 ## Architecture Diagrams
 
 ## Component Diagram
-![Component Diagram](Component.png)
+![Component Diagram]("Component_Diagram(1).png")
 
 ## ER Diagram
 ![ER Diagram](ER_Diagram.png)
