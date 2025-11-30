@@ -150,7 +150,7 @@ Open your browser and navigate to:
 ## Architecture Diagrams
 
 ## Component Diagram
-![Component Diagram]("Components.png")
+![Component Diagram](https://raw.githubusercontent.com/anushaladha04/soundscape/main/Components.png)
 
 ## ER Diagram
 ![ER Diagram](ER_Diagram.png)
