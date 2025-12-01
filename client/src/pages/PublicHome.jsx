@@ -22,14 +22,14 @@ const PublicHome = () => {
         <button
           type="button"
           onClick={() => navigate('/signup')}
-          className="px-5 lg:px-4 py-1.5 lg:py-1.5 rounded-xl bg-[#f26f5e] hover:bg-[#ff8270] text-sm md:text-base lg:text-sm"
+          className="px-4 py-2 rounded lg:px-4 lg:py-1.5 bg-[#f26f5e] hover:bg-[#ff8270] text-sm md:text-base lg:text-sm"
         >
           Sign Up
         </button>
         <button
           type="button"
           onClick={() => navigate('/login')}
-          className="px-5 lg:px-4 py-1.5 lg:py-1.5 rounded-xl border border-gray-600 hover:bg-gray-800 text-sm md:text-base lg:text-sm"
+          className="px-4 py-2 rounded lg:px-4 lg:py-1.5 border border-gray-600 hover:bg-gray-800 text-sm md:text-base lg:text-sm"
         >
           Log In
         </button>
