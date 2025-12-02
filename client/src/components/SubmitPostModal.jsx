@@ -4,7 +4,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
   const [formData, setFormData] = useState({
     eventTitle: '',
     artistName: '',
-    genre: 'electronic',
+    genre: '',
     date: '',
     time: '',
     venue: '',
@@ -62,7 +62,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
       setFormData({
         eventTitle: '',
         artistName: '',
-        genre: 'electronic',
+        genre: '',
         date: '',
         time: '',
         venue: '',
@@ -214,7 +214,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   value={formData.eventTitle}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                   style={{
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
@@ -235,7 +235,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   value={formData.artistName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                   style={{
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
@@ -253,16 +253,17 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   name="genre"
                   value={formData.genre}
                   onChange={handleInputChange}
-                  required
                   className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
                   style={{
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a',
-                    paddingRight: '2.5rem'
+                    paddingRight: '2.5rem',
+                    color: formData.genre ? '#ffffff' : '#6b7280'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 >
+                  <option value="" style={{ color: '#6b7280' }}>Select a genre...</option>
                   <option value="rock">Rock</option>
                   <option value="pop">Pop</option>
                   <option value="electronic">Electronic</option>
@@ -297,7 +298,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   value={formData.date}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                   style={{
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
@@ -317,7 +318,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   value={formData.time}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                   style={{
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
@@ -350,7 +351,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   value={formData.venue}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                   style={{
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
@@ -370,8 +371,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   placeholder="e.g., 33 E 33rd St"
                   value={formData.address}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                   style={{
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
@@ -392,8 +392,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     placeholder="City"
                     value={formData.city}
                     onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                     style={{
                       backgroundColor: '#0f0f0f',
                       border: '1px solid #2a2a2a'
@@ -412,8 +411,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     placeholder="State"
                     value={formData.state}
                     onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                     style={{
                       backgroundColor: '#0f0f0f',
                       border: '1px solid #2a2a2a'
@@ -434,7 +432,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                   placeholder="Zip code"
                   value={formData.zipCode}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
+                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none placeholder:text-gray-500"
                   style={{
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'

@@ -32,9 +32,6 @@ const validatePost = (req, res, next) => {
   if (!artistName || typeof artistName !== 'string' || artistName.trim() === '') {
     errors.push('Artist name is required');
   }
-  if (!genre || typeof genre !== 'string' || genre.trim() === '') {
-    errors.push('Genre is required');
-  }
   if (!date || typeof date !== 'string' || date.trim() === '') {
     errors.push('Date is required');
   }
@@ -43,15 +40,6 @@ const validatePost = (req, res, next) => {
   }
   if (!venue || typeof venue !== 'string' || venue.trim() === '') {
     errors.push('Venue is required');
-  }
-  if (!address || typeof address !== 'string' || address.trim() === '') {
-    errors.push('Address is required');
-  }
-  if (!city || typeof city !== 'string' || city.trim() === '') {
-    errors.push('City is required');
-  }
-  if (!state || typeof state !== 'string' || state.trim() === '') {
-    errors.push('State is required');
   }
 
   // Basic date format validation (YYYY-MM-DD)
@@ -82,13 +70,13 @@ router.post("/", validatePost, async (req, res) => {
     const postData = {
       eventTitle: eventTitle.trim(),
       artistName: artistName.trim(),
-      genre: genre.trim(),
+      genre: genre ? genre.trim() : '',
       date: date.trim(),
       time: time.trim(),
       venue: venue.trim(),
-      address: address.trim(),
-      city: city.trim(),
-      state: state.trim(),
+      address: address ? address.trim() : '',
+      city: city ? city.trim() : '',
+      state: state ? state.trim() : '',
       zipCode: zipCode ? zipCode.trim() : '',
     };
 
@@ -175,14 +163,13 @@ router.post("/:id/vote", async (req, res) => {
 
     if (existingVote) {
       // User already voted - update their vote if different
-      if (existingVote.vote_type === voteType) {
-        // Same vote type - no change needed
-      } else {
+      if (existingVote.vote_type !== voteType) {
         // Change vote type
         existingVote.vote_type = voteType;
         existingVote.timestamp = new Date();
         await existingVote.save();
       }
+      // If same vote type, do nothing (vote stays)
     } else {
       // New vote - create verification record
       await Verification.create({

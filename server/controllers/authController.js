@@ -149,8 +149,11 @@ export const requestPasswordReset = async (req, res) => {
 
     try {
       await sendPasswordResetEmail(email, resetUrl);
+      console.log(`✅ Password reset token generated for ${email}`);
     } catch (emailErr) {
-      console.error("Error sending password reset email:", emailErr);
+      console.error("❌ Error sending password reset email:", emailErr.message);
+      // Log the reset URL so user can still reset manually if needed
+      console.warn(`⚠️  Manual reset link for ${email}: ${resetUrl}`);
       // Still respond generically so we don't leak email existence
     }
 
@@ -168,6 +171,10 @@ export const resetPassword = async (req, res) => {
 
     if (!token || !password) {
       return res.status(400).json({ message: "Token and new password are required" });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters" });
     }
 
     const user = await User.findOne({
@@ -199,7 +206,11 @@ export const resetPassword = async (req, res) => {
       token: authToken,
     });
   } catch (err) {
-    return res.status(500).json({ message: "Failed to reset password" });
+    console.error("Error resetting password:", err);
+    return res.status(500).json({ 
+      message: "Failed to reset password",
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
 
