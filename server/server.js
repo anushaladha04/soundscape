@@ -1,24 +1,28 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { connectDB } from "./db.js";
+import apiRoutes from "./routes/index.js";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
 app.get("/", (req, res) => {
   res.send("Soundscape backend is running");
 });
 
+app.use("/api", apiRoutes);
+
 const port = process.env.PORT || 5050;
-app.listen(port, () => {
-  console.log(`Server listening on http://localhost:${port}`);
-});
+
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(port, () => {
+    console.log(`Server listening on http://localhost:${port}`);
+  });
+};
+
+startServer();
 
