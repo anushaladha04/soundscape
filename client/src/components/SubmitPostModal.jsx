@@ -12,10 +12,8 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
     city: '',
     state: '',
     zipCode: '',
-    description: '',
   });
 
-  const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: null, message: '' });
 
@@ -25,13 +23,6 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -79,9 +70,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
         city: '',
         state: '',
         zipCode: '',
-        description: '',
       });
-      setImageFile(null);
 
       // Close modal after 2 seconds
       setTimeout(() => {
@@ -257,80 +246,33 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300">
-                    Genre
-                  </label>
-                  <select
-                    name="genre"
-                    value={formData.genre}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
-                    style={{
-                      backgroundColor: '#0f0f0f',
-                      border: '1px solid #2a2a2a'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#a855f7'}
-                    onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
-                  >
-                    <option value="rock">Rock</option>
-                    <option value="pop">Pop</option>
-                    <option value="electronic">Electronic</option>
-                    <option value="folk">Folk</option>
-                    <option value="jazz">Jazz</option>
-                    <option value="classical">Classical</option>
-                    <option value="synthwave">Synthwave</option>
-                    <option value="ambient">Ambient</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-300">
-                    Event Image
-                  </label>
-                  <label className="block">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
-                    <span 
-                      className="px-3 py-2 rounded-lg text-white cursor-pointer text-sm flex items-center gap-2 inline-block"
-                      style={{
-                        backgroundColor: '#0f0f0f',
-                        border: '1px solid #2a2a2a'
-                      }}
-                    >
-                      <span>📤</span>
-                      {imageFile ? imageFile.name : 'Choose Image'}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-300">
-                  Description
+                  Genre
                 </label>
-                <textarea
-                  name="description"
-                  placeholder="Tell us about this event..."
-                  value={formData.description}
+                <select
+                  name="genre"
+                  value={formData.genre}
                   onChange={handleInputChange}
-                  rows={4}
-                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none resize-y"
+                  required
+                  className="w-full px-3 py-2 rounded-lg text-white focus:outline-none"
                   style={{
                     backgroundColor: '#0f0f0f',
-                    border: '1px solid #2a2a2a',
-                    minHeight: '100px'
+                    border: '1px solid #2a2a2a'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#a855f7'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
-                />
+                >
+                  <option value="rock">Rock</option>
+                  <option value="pop">Pop</option>
+                  <option value="electronic">Electronic</option>
+                  <option value="folk">Folk</option>
+                  <option value="jazz">Jazz</option>
+                  <option value="classical">Classical</option>
+                  <option value="synthwave">Synthwave</option>
+                  <option value="ambient">Ambient</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
             </div>
           </div>

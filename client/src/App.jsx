@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import Navbar from './components/Navbar'
 import SubmitPostModal from './components/SubmitPostModal'
@@ -117,7 +117,7 @@ function AppContent() {
           />
           <Route
             path="/community"
-            element={<Community key={refreshKey} />}
+            element={<Community key={refreshKey} onOpenModal={handleOpenModal} />}
           />
           <Route
             path="/login"
@@ -174,12 +174,4 @@ function AppContent() {
   )
 }
 
-function App() {
-  return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
-  )
-}
-
-export default App
+export default AppContent
