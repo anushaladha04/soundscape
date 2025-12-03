@@ -10,16 +10,20 @@ const userUploadSchema = new Schema(
       unique: true,
       default: () => new Types.ObjectId(),
     },
-    event_title: { type: String, required: true, trim: true },
-    artist: { type: String, required: true, trim: true },
-    genre: { type: String, required: true },
-    venue: { type: String, required: true },
-    date: { type: Date, required: true },
+    eventTitle: { type: String, required: true, trim: true },
+    artistName: { type: String, required: true, trim: true },
+    genre: { type: String, required: true, trim: true },
+    date: { type: String, required: true },
     time: { type: String, required: true },
+    venue: { type: String, required: true, trim: true },
+    address: { type: String, required: true, trim: true },
+    city: { type: String, required: true, trim: true },
+    state: { type: String, required: true, trim: true },
+    zipCode: { type: String, default: "" },
   },
   { timestamps: true }
 );
 
-userUploadSchema.index({ upload_id: 1 });
+// upload_id already has unique: true which creates an index, so no need for separate index
 
 export default models.UserUpload || model("UserUpload", userUploadSchema);

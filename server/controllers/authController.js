@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
-import { User } from "../models/User.js";
+import User from "../models/User.js";
 import { config } from "../config.js";
 
 const createToken = (userId) => {
@@ -29,7 +29,7 @@ export const registerUser = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password_hash: hashedPassword,
     });
 
     const token = createToken(user._id);
@@ -60,7 +60,7 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -129,10 +129,10 @@ export const googleAuth = async (req, res) => {
       user = await User.create({
         name: name || email,
         email,
-        googleId: sub,
+        googleID: sub,
       });
-    } else if (!user.googleId) {
-      user.googleId = sub;
+    } else if (!user.googleID) {
+      user.googleID = sub;
       await user.save();
     }
 

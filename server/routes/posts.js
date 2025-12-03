@@ -1,7 +1,23 @@
 import express from "express";
-import { postsStorage } from "../storage/postsStorage.js";
+import UserUpload from "../models/UserUpload.js";
+import Verification from "../models/Verification.js";
 
 const router = express.Router();
+
+// Helper function to calculate votes for a post
+const calculateVotes = async (postId) => {
+  const votes = await Verification.find({ post_id: postId });
+  const likes = votes.filter(v => v.vote_type === 'like').length;
+  const dislikes = votes.filter(v => v.vote_type === 'dislike').length;
+  return { likes, dislikes };
+};
+
+// Helper function to calculate ratio
+const calculateRatio = (likes, dislikes) => {
+  const total = likes + dislikes;
+  if (total === 0) return 0;
+  return likes / (total + 1);
+};
 
 // Validation helper
 const validatePost = (req, res, next) => {
@@ -59,7 +75,7 @@ const validatePost = (req, res, next) => {
 };
 
 // POST /api/posts - Submit a new post
-router.post("/", validatePost, (req, res) => {
+router.post("/", validatePost, async (req, res) => {
   try {
     const { eventTitle, artistName, genre, date, time, venue, address, city, state, zipCode } = req.body;
 
@@ -76,7 +92,7 @@ router.post("/", validatePost, (req, res) => {
       zipCode: zipCode ? zipCode.trim() : '',
     };
 
-    const post = postsStorage.create(postData);
+    const post = await UserUpload.create(postData);
 
     res.status(201).json({
       message: 'Post submitted successfully',
@@ -92,10 +108,29 @@ router.post("/", validatePost, (req, res) => {
 });
 
 // GET /api/posts - Get all posts
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const posts = postsStorage.findAll();
-    res.json({ posts });
+    const posts = await UserUpload.find().sort({ createdAt: -1 });
+    
+    // Calculate votes for each post
+    const postsWithVotes = await Promise.all(
+      posts.map(async (post) => {
+        const { likes, dislikes } = await calculateVotes(post._id);
+        const ratio = calculateRatio(likes, dislikes);
+        return {
+          ...post.toObject(),
+          _id: post._id.toString(),
+          likes,
+          dislikes,
+          ratio,
+        };
+      })
+    );
+
+    // Sort by ratio descending (highest first)
+    postsWithVotes.sort((a, b) => b.ratio - a.ratio);
+
+    res.json({ posts: postsWithVotes });
   } catch (error) {
     console.error('Error fetching posts:', error);
     res.status(500).json({ 
@@ -106,7 +141,7 @@ router.get("/", (req, res) => {
 });
 
 // POST /api/posts/:id/vote - Vote on a post
-router.post("/:id/vote", (req, res) => {
+router.post("/:id/vote", async (req, res) => {
   try {
     const { id } = req.params;
     const { userId, voteType } = req.body;
@@ -124,21 +159,61 @@ router.post("/:id/vote", (req, res) => {
       });
     }
 
-    const updatedPost = postsStorage.vote(id, userId, voteType);
-
-    if (!updatedPost) {
+    // Check if post exists
+    const post = await UserUpload.findById(id);
+    if (!post) {
       return res.status(404).json({ 
         message: 'Post not found' 
       });
     }
 
+    // Check if user already voted
+    const existingVote = await Verification.findOne({ 
+      user_id: userId, 
+      post_id: id 
+    });
+
+    if (existingVote) {
+      // User already voted - update their vote if different
+      if (existingVote.vote_type === voteType) {
+        // Same vote type - no change needed
+      } else {
+        // Change vote type
+        existingVote.vote_type = voteType;
+        existingVote.timestamp = new Date();
+        await existingVote.save();
+      }
+    } else {
+      // New vote - create verification record
+      await Verification.create({
+        user_id: userId,
+        post_id: id,
+        vote_type: voteType,
+      });
+    }
+
+    // Get updated post with votes
+    const { likes, dislikes } = await calculateVotes(id);
+    const ratio = calculateRatio(likes, dislikes);
+    const updatedPost = {
+      ...post.toObject(),
+      _id: post._id.toString(),
+      likes,
+      dislikes,
+      ratio,
+    };
+
     // Get user's current vote
-    const userVote = postsStorage.getUserVote(id, userId);
+    const currentVote = await Verification.findOne({ 
+      user_id: userId, 
+      post_id: id 
+    });
+    const userVote = currentVote ? currentVote.vote_type : null;
 
     res.json({
       message: 'Vote recorded successfully',
       post: updatedPost,
-      userVote, // Return user's vote so frontend knows what they voted
+      userVote,
     });
   } catch (error) {
     console.error('Error voting on post:', error);
@@ -150,7 +225,7 @@ router.post("/:id/vote", (req, res) => {
 });
 
 // GET /api/posts/:id/vote - Get user's vote for a post
-router.get("/:id/vote", (req, res) => {
+router.get("/:id/vote", async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req.query;
@@ -161,10 +236,13 @@ router.get("/:id/vote", (req, res) => {
       });
     }
 
-    const userVote = postsStorage.getUserVote(id, userId);
+    const vote = await Verification.findOne({ 
+      user_id: userId, 
+      post_id: id 
+    });
 
     res.json({
-      userVote: userVote || null,
+      userVote: vote ? vote.vote_type : null,
     });
   } catch (error) {
     console.error('Error fetching user vote:', error);
@@ -176,4 +254,3 @@ router.get("/:id/vote", (req, res) => {
 });
 
 export default router;
-

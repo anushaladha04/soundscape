@@ -20,6 +20,6 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-userSchema.index({ user_id: 1 });
+// user_id already has unique: true which creates an index, so no need for separate index
 
 export default models.User || model("User", userSchema);
