@@ -77,7 +77,6 @@ const Signup = ({ onAuthSuccess }) => {
           width: 320,
         })
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error('Google signup button error:', err)
       }
     }

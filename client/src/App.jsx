@@ -9,13 +9,16 @@ import ResetPassword from './pages/auth/ResetPassword'
 import PreferencesOnboarding from './pages/auth/PreferencesOnboarding'
 import AccountSettings from './pages/AccountSettings'
 import Home from './pages/Home'
+import Bookmarks from './pages/Bookmarks'
+import Community from './pages/Community'
+import Discover from './pages/Discover'
+import PublicHome from './pages/PublicHome'
 
 function App() {
   const [user, setUser] = useState(null)
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Load existing token on first mount and hydrate user
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token || user) return
@@ -32,9 +35,7 @@ function App() {
         }
         const data = await res.json()
         setUser(data.user)
-      } catch {
-        // network error, keep token but no user
-      }
+      } catch {}
     }
 
     fetchUser()
@@ -75,23 +76,38 @@ function App() {
         user={user}
       />
 
-      <main className="max-w-5xl mx-auto px-4 pb-12">
-        {location.pathname === '/' && (
-          <header className="pt-10 text-center">
-            <h1 className="text-4xl font-semibold mb-2">Soundscape</h1>
-            <p className="text-sm text-gray-300">
-              Discover live concerts, immersive soundscapes, and
-              community-curated events.
-            </p>
-          </header>
-        )}
-
+      <main className="max-w-7xl mx-auto px-4 pb-12">
         <Routes>
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                <Home />
+                <Home user={user} />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/welcome" element={<PublicHome />} />
+          <Route
+            path="/discover"
+            element={
+              <ProtectedRoute>
+                <Discover />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bookmarks"
+            element={
+              <ProtectedRoute>
+                <Bookmarks />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute>
+                <Community />
               </ProtectedRoute>
             }
           />
