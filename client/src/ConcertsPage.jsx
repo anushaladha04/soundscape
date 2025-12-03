@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 const PAGE_SIZE = 5;
 const API_BASE = "http://localhost:5050/api";
 
-export default function ConcertsPage({ onBookmarkCountChange = () => {} }) {
+export default function ConcertsPage({ onBookmarkCountChange }) {
   const [artist, setArtist] = useState("");
   const [events, setEvents] = useState([]);
   const [error, setError] = useState("");
@@ -17,10 +17,9 @@ export default function ConcertsPage({ onBookmarkCountChange = () => {} }) {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [availableGenres, setAvailableGenres] = useState([]);
 
-  // IDs of events the user has bookmarked
   const [bookmarkedIds, setBookmarkedIds] = useState([]);
 
-  /* ------------------ FETCH EVENTS ------------------ */
+  /* ---------- core: fetch events ---------- */
   const fetchEvents = async (pageToUse = page) => {
     setLoading(true);
     setError("");
@@ -57,15 +56,13 @@ export default function ConcertsPage({ onBookmarkCountChange = () => {} }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ------------------ FETCH GENRES ------------------ */
+  /* ---------- fetch genres ---------- */
   useEffect(() => {
     const fetchGenres = async () => {
       try {
         const res = await fetch(`${API_BASE}/events/genres`);
         const data = await res.json();
-        if (res.ok) {
-          setAvailableGenres(data.genres || []);
-        }
+        if (res.ok) setAvailableGenres(data.genres || []);
       } catch (err) {
         console.error("Error fetching genres:", err);
       }
@@ -73,33 +70,36 @@ export default function ConcertsPage({ onBookmarkCountChange = () => {} }) {
     fetchGenres();
   }, []);
 
-  /* -------------- LOAD USER BOOKMARKS --------------- */
+  /* ---------- load user bookmarks ---------- */
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
         const res = await fetch(`${API_BASE}/bookmarks`, {
-          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         if (!res.ok) return;
 
         const data = await res.json();
-        const ids =
-          (data.bookmarks || [])
-            .filter((b) => b.event?._id)
-            .map((b) => b.event._id) || [];
+        // API returns an array of Event docs in data.bookmarks
+        const events = data.bookmarks || [];
+        const ids = events.map((ev) => ev._id).filter(Boolean);
 
         setBookmarkedIds(ids);
-        onBookmarkCountChange(ids.length);
+        if (onBookmarkCountChange) onBookmarkCountChange(ids.length);
       } catch (err) {
-        console.error("Error fetching bookmarks:", err);
+        console.error("Error loading bookmarks:", err);
       }
     };
-
     fetchBookmarks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ------------------ SEARCH SUBMIT ------------------ */
+  /* ---------- search submit ---------- */
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const trimmed = artist.trim();
@@ -107,20 +107,14 @@ export default function ConcertsPage({ onBookmarkCountChange = () => {} }) {
       setError("Please enter at least 2 characters.");
       return;
     }
-    setError("");
     fetchEvents(1);
   };
 
-  /* ------------------- PAGINATION ------------------- */
-  const handlePrev = () => {
-    if (page > 1) fetchEvents(page - 1);
-  };
+  /* ---------- pagination ---------- */
+  const handlePrev = () => page > 1 && fetchEvents(page - 1);
+  const handleNext = () => page < totalPages && fetchEvents(page + 1);
 
-  const handleNext = () => {
-    if (page < totalPages) fetchEvents(page + 1);
-  };
-
-  /* ----------------- GENRE FILTERING ----------------- */
+  /* ---------- genre filters ---------- */
   const handleToggleGenre = (genre) => {
     setSelectedGenres((prev) =>
       prev.includes(genre)
@@ -134,221 +128,271 @@ export default function ConcertsPage({ onBookmarkCountChange = () => {} }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGenres]);
 
-  /* ------------------- BOOKMARKING ------------------- */
+  /* ---------- bookmarking ---------- */
   const handleToggleBookmark = async (eventId) => {
     const isBookmarked = bookmarkedIds.includes(eventId);
 
+    // optimistic update
+    let next;
+    if (isBookmarked) {
+      next = bookmarkedIds.filter((id) => id !== eventId);
+    } else {
+      next = [...bookmarkedIds, eventId];
+    }
+    setBookmarkedIds(next);
+    if (onBookmarkCountChange) onBookmarkCountChange(next.length);
+
     try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Not logged in");
+
       if (!isBookmarked) {
-        // ADD bookmark
         const res = await fetch(`${API_BASE}/bookmarks`, {
           method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({ eventId }),
         });
         if (!res.ok) throw new Error("Failed to bookmark");
-
-        const next = [...bookmarkedIds, eventId];
-        setBookmarkedIds(next);
-        onBookmarkCountChange(next.length);
       } else {
-        // REMOVE bookmark
         const res = await fetch(`${API_BASE}/bookmarks/${eventId}`, {
           method: "DELETE",
-          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         if (!res.ok) throw new Error("Failed to unbookmark");
-
-        const next = bookmarkedIds.filter((id) => id !== eventId);
-        setBookmarkedIds(next);
-        onBookmarkCountChange(next.length);
       }
     } catch (err) {
       console.error(err);
-      // you could setError here if you want a message
+      // rollback on error
+      setBookmarkedIds(bookmarkedIds);
+      if (onBookmarkCountChange) onBookmarkCountChange(bookmarkedIds.length);
     }
   };
 
-  /* ------------------------ UI ----------------------- */
+  const BookmarkIcon = ({ active }) => (
+    <svg
+      viewBox="0 0 24 24"
+      className={
+        "w-6 h-6 transition-colors " +
+        (active
+          ? "text-yellow-400"
+          : "text-gray-400 hover:text-yellow-300")
+      }
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      {/* outline bookmark like your reference */}
+      <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
+    </svg>
+  );
+
+  // Format date as "Dec 15, 2024 at 8:00 PM"
+  const formatDate = (dateString, timeString) => {
+    if (!dateString) return "Date TBA";
+    const date = new Date(dateString);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    
+    // Use time field if available, otherwise extract from date
+    let timeStr = "";
+    if (timeString && timeString !== "TBA") {
+      // Parse time string (format: "HH:mm:ss" or "HH:mm")
+      const timeParts = timeString.split(":");
+      if (timeParts.length >= 2) {
+        let hours = parseInt(timeParts[0], 10);
+        const minutes = parseInt(timeParts[1], 10);
+        const ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const minutesStr = minutes < 10 ? `0${minutes}` : "00";
+        timeStr = ` at ${hours}:${minutesStr} ${ampm}`;
+      }
+    } else {
+      // Extract time from date object
+      let hours = date.getHours();
+      const minutes = date.getMinutes();
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const minutesStr = minutes < 10 ? `0${minutes}` : minutes;
+      timeStr = ` at ${hours}:${minutesStr} ${ampm}`;
+    }
+    
+    return `${month} ${day}, ${year}${timeStr}`;
+  };
+
+  // Format location as "Venue, City"
+  const formatLocation = (event) => {
+    const parts = [];
+    if (event.venue) parts.push(event.venue);
+    if (event.city) parts.push(event.city);
+    return parts.length > 0 ? parts.join(", ") : "Location TBA";
+  };
+
+  /* ---------- UI ---------- */
   return (
-    <div className="min-h-screen bg-black text-white px-8 pb-8">
-      <h1 className="text-3xl font-semibold mb-2 text-center">
-        Discover Concerts
-      </h1>
-      <p className="text-sm text-gray-300 mb-6 text-center">
-        Browse and filter upcoming events
-      </p>
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <h1 className="text-3xl font-semibold mb-2">Discover Concerts</h1>
+        <p className="text-sm text-gray-400 mb-6">Browse and filter upcoming events.</p>
 
-      <div className="flex gap-8">
-        {/* LEFT SIDEBAR: GENRE FILTERS */}
-        <aside className="w-64 bg-[#050505] border border-gray-800 rounded-lg p-4">
-          <h2 className="text-lg font-semibold mb-3">Genre</h2>
+        <div className="flex gap-8">
+          {/* SIDEBAR */}
+          <aside className="w-64 flex-shrink-0">
+            <h2 className="text-sm font-semibold mb-4 text-gray-300">Genre</h2>
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="genre"
+                  checked={selectedGenres.length === 0}
+                  onChange={() => setSelectedGenres([])}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm text-white">All Genres</span>
+              </label>
 
-          <div className="flex items-center gap-2 mb-3">
-            <input
-              type="radio"
-              id="all-genres"
-              name="genre"
-              checked={selectedGenres.length === 0}
-              onChange={() => setSelectedGenres([])}
-            />
-            <label htmlFor="all-genres" className="text-sm">
-              All Genres
-            </label>
-          </div>
+              {availableGenres.map((genre) => (
+                <label
+                  key={genre}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedGenres.includes(genre)}
+                    onChange={() => handleToggleGenre(genre)}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm text-white">{genre}</span>
+                </label>
+              ))}
+            </div>
+          </aside>
 
-          <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-            {availableGenres.length === 0 && (
-              <p className="text-xs text-gray-500">
-                No genres available yet.
+          {/* MAIN CONTENT */}
+          <main className="flex-1">
+            {/* Search bar */}
+            <form
+              onSubmit={handleSearchSubmit}
+              className="relative mb-6 max-w-xl"
+            >
+              <input
+                type="text"
+                placeholder="Search concerts..."
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-[#1a1a1a] border border-gray-800 rounded text-white placeholder-gray-500 focus:outline-none focus:border-gray-600"
+              />
+              <svg
+                className="absolute left-3 top-2.5 w-5 h-5 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </form>
+
+            {error && <p className="text-red-400 mb-4">{error}</p>}
+            {loading && (
+              <p className="mb-4 text-sm text-gray-400">Loading concerts...</p>
+            )}
+
+            {!loading && !error && (
+              <p className="mb-6 text-sm text-gray-400">
+                Showing {Math.min((page - 1) * PAGE_SIZE + events.length, total)} of {total} event{total !== 1 ? "s" : ""}
               </p>
             )}
 
-            {availableGenres.map((genre) => (
-              <label
-                key={genre}
-                className="flex items-center gap-2 text-sm cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedGenres.includes(genre)}
-                  onChange={() => handleToggleGenre(genre)}
-                />
-                <span>{genre}</span>
-              </label>
-            ))}
-          </div>
-        </aside>
+            {!loading && events.length === 0 && !error && (
+              <p className="text-gray-400">No concerts found.</p>
+            )}
 
-        {/* MAIN CONTENT: SEARCH + RESULTS */}
-        <main className="flex-1">
-          {/* Search bar */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="flex gap-2 mb-3 max-w-xl mx-auto"
-          >
-            <input
-              type="text"
-              placeholder="Search concerts..."
-              value={artist}
-              onChange={(e) => setArtist(e.target.value)}
-              className="flex-1 p-2 bg-gray-800 text-white rounded"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
-            >
-              Search
-            </button>
-          </form>
-
-          {error && (
-            <p className="text-red-400 mb-2 text-center">{error}</p>
-          )}
-          {loading && (
-            <p className="mb-2 text-sm text-gray-300 text-center">
-              Loading concerts...
-            </p>
-          )}
-
-          {!loading && !error && (
-            <p className="mb-4 text-sm text-gray-300 text-center">
-              Showing {events.length} of {total} concert
-              {total === 1 ? "" : "s"}
-            </p>
-          )}
-
-          {!loading && events.length === 0 && !error && (
-            <p className="text-center">No concerts found.</p>
-          )}
-
-          {/* events grid */}
-          <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4">
-            {events.map((ev) => {
-              const isBookmarked = bookmarkedIds.includes(ev._id);
-              return (
-                <div
-                  key={ev._id}
-                  className="relative border border-gray-700 p-4 rounded bg-black/40"
-                >
-                  {/* Bookmark icon */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleBookmark(ev._id)}
-                    className="absolute top-3 right-3 rounded-full p-1 hover:bg-gray-800 transition"
-                    aria-label={
-                      isBookmarked
-                        ? "Remove bookmark"
-                        : "Add bookmark"
-                    }
+            {/* cards */}
+            <div className="grid grid-cols-2 gap-4">
+              {events.map((ev) => {
+                const isBookmarked = bookmarkedIds.includes(ev._id);
+                return (
+                  <div
+                    key={ev._id}
+                    className="relative bg-[#1a1a1a] border border-gray-800 rounded-lg p-5"
                   >
-                    {/* Outline bookmark icon that turns yellow when active */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      className="w-6 h-6"
+                    {/* bookmark button */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleBookmark(ev._id)}
+                      className="absolute top-4 right-4"
+                      aria-label={
+                        isBookmarked ? "Remove bookmark" : "Add bookmark"
+                      }
                     >
-                      <path
-                        d="M6 3h12v18l-6-5-6 5V3z"
-                        fill={isBookmarked ? "#facc15" : "none"} // yellow-400
-                        stroke={isBookmarked ? "#facc15" : "#e5e7eb"} // gray-200
-                        strokeWidth="2"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
+                      <BookmarkIcon active={isBookmarked} />
+                    </button>
 
-                  <h2 className="text-xl font-semibold mb-1 text-center">
-                    {ev.artist}
-                  </h2>
+                    {/* Genre - uppercase, red color */}
+                    {ev.genre && (
+                      <p className="text-xs font-semibold text-red-500 mb-2 uppercase tracking-wide">
+                        {ev.genre}
+                      </p>
+                    )}
 
-                  {ev.venue && (
-                    <p className="text-sm text-gray-300 mb-1 text-center">
-                      {ev.venue}
+                    {/* Title */}
+                    <h2 className="text-lg font-semibold mb-3 text-white">
+                      {ev.artist || ev.name}
+                    </h2>
+
+                    {/* Date and Time */}
+                    <p className="text-sm text-gray-300 mb-2">
+                      {formatDate(ev.date, ev.time)}
                     </p>
-                  )}
 
-                  <p className="text-sm text-gray-400 mb-1 text-center">
-                    {ev.city && <span>{ev.city} • </span>}
-                    {ev.date
-                      ? new Date(ev.date).toLocaleString()
-                      : "Date TBA"}
-                  </p>
-
-                  {ev.genre && (
-                    <p className="text-sm text-gray-400 mb-1 text-center">
-                      {ev.genre}
+                    {/* Location */}
+                    <p className="text-sm text-gray-400">
+                      {formatLocation(ev)}
                     </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  </div>
+                );
+              })}
+            </div>
 
-          {/* Pagination */}
-          <div className="mt-4 flex items-center justify-center gap-4">
-            <button
-              type="button"
-              onClick={handlePrev}
-              disabled={page <= 1}
-              className="px-3 py-1 bg-gray-700 rounded disabled:opacity-40"
-            >
-              Prev
-            </button>
-            <span className="text-sm">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={handleNext}
-              disabled={page >= totalPages}
-              className="px-3 py-1 bg-gray-700 rounded disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
-        </main>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  disabled={page <= 1}
+                  className="px-4 py-2 bg-[#1a1a1a] border border-gray-800 rounded text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#252525]"
+                >
+                  Prev
+                </button>
+                <span className="text-sm text-gray-400">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={page >= totalPages}
+                  className="px-4 py-2 bg-[#1a1a1a] border border-gray-800 rounded text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#252525]"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );

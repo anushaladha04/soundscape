@@ -2,49 +2,56 @@
 import express from "express";
 import Bookmark from "../models/Bookmark.js";
 import Event from "../models/Event.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
-
-const requireAuth = (req, res, next) => {
-  const userId = req.user?.user_id || req.user?._id;
-  if (!userId) {
-    return res.status(401).json({ message: "Not logged in" });
-  }
-  req.currentUserId = userId;
-  next();
-};
 
 /**
  * GET /api/bookmarks
  */
 router.get("/", requireAuth, async (req, res) => {
   try {
-    const userId = req.currentUserId;
+    const userId = req.userId;
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Start of today
 
-    // NOTE: user_id and event_id to match schema
+    // Find all bookmarks for this user and populate the associated Event docs.
     const bookmarks = await Bookmark.find({ user_id: userId })
       .populate("event_id")
       .sort({ "event_id.date": 1 });
 
+    // Filter to only upcoming events (date >= today) and remove past ones from DB
     const upcomingEvents = [];
     const toDelete = [];
 
     for (const b of bookmarks) {
       const ev = b.event_id;
-      if (!ev || !ev.date || ev.date < now) {
+      if (!ev) {
+        // Event was deleted, remove the bookmark
+        toDelete.push(b._id);
+        continue;
+      }
+
+      // Check if event date is in the past
+      const eventDate = new Date(ev.date);
+      eventDate.setHours(0, 0, 0, 0);
+
+      if (eventDate < now) {
+        // Past event - mark bookmark for deletion
         toDelete.push(b._id);
       } else {
-        upcomingEvents.push(ev); // just send the event docs to the client
+        // Upcoming event - keep it
+        upcomingEvents.push(ev);
       }
     }
 
+    // Clean up past bookmarks from database
     if (toDelete.length > 0) {
       await Bookmark.deleteMany({ _id: { $in: toDelete } });
     }
 
     res.json({
-      bookmarks: upcomingEvents, // array of Event docs
+      bookmarks: upcomingEvents,
       count: upcomingEvents.length,
     });
   } catch (err) {
@@ -58,7 +65,7 @@ router.get("/", requireAuth, async (req, res) => {
  */
 router.post("/", requireAuth, async (req, res) => {
   try {
-    const userId = req.currentUserId;
+    const userId = req.userId;
     const { eventId } = req.body;
 
     if (!eventId) {
@@ -88,7 +95,7 @@ router.post("/", requireAuth, async (req, res) => {
  */
 router.delete("/:eventId", requireAuth, async (req, res) => {
   try {
-    const userId = req.currentUserId;
+    const userId = req.userId;
     const { eventId } = req.params;
 
     await Bookmark.findOneAndDelete({ user_id: userId, event_id: eventId });
