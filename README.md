@@ -6,6 +6,7 @@
 
 - **Event Discovery**: Browse upcoming concerts and music events in Los Angeles with search and genre filtering
 - **Personalized Recommendations**: Get event recommendations tailored to your music genre preferences
+- **Community Posts**: Submit and discover user-verified music events shared by the community with voting system
 - **Bookmarks**: Save events you're interested in for easy access later
 - **User Authentication**: Secure login/signup with JWT tokens, Google OAuth, and password reset via email
 - **Genre Preferences**: Set and update your favorite music genres to improve recommendations
@@ -150,11 +151,12 @@ Open your browser and navigate to:
 ## Architecture Diagrams
 
 ## Component Diagram
+
 ![Component Diagram](https://raw.githubusercontent.com/anushaladha04/soundscape/main/Components.png)
 
 ## ER Diagram
-![ER Diagram](ER_Diagram.png)
 
+![ER Diagram](ER_Diagram.png)
 
 ## Application Flow
 
@@ -176,9 +178,18 @@ Open your browser and navigate to:
    - Backend queries Event collection, filters by user genres, returns random selection
 
 4. **Bookmarking**
+
    - User clicks bookmark icon → POST to `/api/bookmarks`
    - Bookmark document created linking User and Event
    - User can view all bookmarks on Bookmarks page
+
+5. **Community Posts**
+   - User submits event post → POST to `/api/posts` with event details
+   - Post stored in UserUpload collection, marked as unverified
+   - Community can vote (like/dislike) on posts to verify legitimacy
+   - Posts sorted by vote ratio (likes vs dislikes) for quality control
+   - Required fields: Event Title, Artist, Date, Time, Venue
+   - Optional fields: Genre, Address, City, State, Zip Code
 
 ## Contributions
 
