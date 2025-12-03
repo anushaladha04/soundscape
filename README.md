@@ -1,6 +1,6 @@
 # Soundscape
 
-**Soundscape** is a full-stack web application for discovering and managing live music events in the Los Angeles area. Users can explore concerts, personalize recommendations based on their music preferences, bookmark favorite events, and manage their account settings.
+**Soundscape** is a full-stack web application for discovering and managing live music events in the Los Angeles area. Users can explore concerts, personalize recommendations based on their music preferences, bookmark favorite events, view/upload community posts, and manage their account settings.
 
 ## Features
 
@@ -39,7 +39,7 @@ Before you begin, ensure you have the following installed:
 - **npm** (comes with Node.js)
 - **MongoDB** - Either:
   - Local MongoDB installation, OR
-  - MongoDB Atlas account (cloud database)
+  - MongoDB Atlas account (cloud database) --> This is what we used!
 - **Ticketmaster API Key** - Get one at [developer.ticketmaster.com](https://developer.ticketmaster.com/)
 - **Google OAuth Credentials** (optional, for Google sign-in) - Get from [Google Cloud Console](https://console.cloud.google.com/)
 
