@@ -2,6 +2,7 @@
 import express from "express";
 import authRoutes from "./auth.js";
 import eventsRoutes from "./events.js";
+import bookmarksRoutes from "./bookmarks.js";
 
 const router = express.Router();
 
@@ -15,5 +16,8 @@ router.use("/auth", authRoutes);
 
 // event routes: /api/events/...
 router.use("/events", eventsRoutes);
+
+// bookmark routes: /api/bookmarks/...
+router.use("/bookmarks", bookmarksRoutes);
 
 export default router;
