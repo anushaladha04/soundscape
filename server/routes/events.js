@@ -1,32 +1,38 @@
 // server/routes/events.js
 import express from "express";
 import Event from "../models/Event.js";
+import { syncTicketmasterEvents } from "../controllers/eventController.js";
 
 const router = express.Router();
 
-// GET /api/events?artist=...&genre=Rock&genre=Pop&page=1&limit=5
+/**
+ * GET /api/events/sync-ticketmaster
+ *
+ * Manually trigger a sync from Ticketmaster → MongoDB.
+ * After calling this, /api/events will return those concerts.
+ */
+router.get("/sync-ticketmaster", syncTicketmasterEvents);
+
+/**
+ * GET /api/events
+ * Query: artist, genre (multi), page, limit
+ *
+ * This is what your ConcertsPage uses for search + filter + pagination.
+ */
 router.get("/", async (req, res) => {
   try {
-    const { artist, page = 1, limit = 5, genre } = req.query;
+    const { artist, genre, page = 1, limit = 5 } = req.query;
 
     const query = {};
 
-    // artist substring search
+    // artist subset + case-insensitive search
     if (artist && artist.trim() !== "") {
       query.artist = { $regex: artist.trim(), $options: "i" };
     }
 
-    // genre multi-select
-    let genres = [];
+    // genre multi-select: genre can be string or array of strings
     if (genre) {
-      if (Array.isArray(genre)) {
-        genres = genre;
-      } else {
-        genres = [genre];
-      }
-    }
-
-    if (genres.length > 0) {
+      const genres = Array.isArray(genre) ? genre : [genre];
       query.genre = { $in: genres };
     }
 
@@ -36,7 +42,7 @@ router.get("/", async (req, res) => {
 
     const [events, total] = await Promise.all([
       Event.find(query)
-        .sort({ date: 1 })
+        .sort({ date: 1 }) // soonest concerts first
         .skip(skip)
         .limit(perPage),
       Event.countDocuments(query),
@@ -54,13 +60,15 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /api/events/genres  ->  returns unique list of genres
+/**
+ * GET /api/events/genres
+ * Returns distinct list of genres from Event collection
+ */
 router.get("/genres", async (req, res) => {
   try {
-    // get all distinct non-null genres from Mongo
     let genres = await Event.distinct("genre");
 
-    // remove empty strings / nulls just in case
+    // remove empty / null
     genres = genres.filter((g) => g && g.trim() !== "");
 
     // sort alphabetically

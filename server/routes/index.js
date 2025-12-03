@@ -1,3 +1,4 @@
+// server/routes/index.js
 import express from "express";
 import authRoutes from "./auth.js";
 import eventsRoutes from "./events.js";
@@ -12,7 +13,7 @@ router.get("/health", (req, res) => {
 // auth routes: /api/auth/...
 router.use("/auth", authRoutes);
 
-// events routes: /api/events/...
+// event routes: /api/events/...
 router.use("/events", eventsRoutes);
 
 export default router;
