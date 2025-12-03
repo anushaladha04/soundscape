@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
@@ -10,9 +11,13 @@ const createToken = (userId) => {
 
 const googleClient = new OAuth2Client(config.googleClientId);
 
+const getClientBaseUrl = () => {
+  return config.clientBaseUrl || "http://localhost:5173";
+};
+
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, genres = [] } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email, and password are required" });
@@ -26,19 +31,28 @@ export const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const emailVerificationToken = crypto.randomBytes(32).toString("hex");
+
     const user = await User.create({
       name,
       email,
-      password_hash: hashedPassword,
+      password: hashedPassword,
+      genres,
+      emailVerificationToken,
     });
 
     const token = createToken(user._id);
+
+    const verifyUrl = `${getClientBaseUrl()}/verify-email?token=${emailVerificationToken}`;
+    console.log(`Verification email for ${email}: ${verifyUrl}`);
 
     return res.status(201).json({
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        genres: user.genres || [],
+        emailVerified: user.emailVerified,
       },
       token,
     });
@@ -60,7 +74,7 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -72,6 +86,8 @@ export const loginUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        genres: user.genres || [],
+        emailVerified: user.emailVerified,
       },
       token,
     });
@@ -87,7 +103,7 @@ export const getCurrentUser = async (req, res) => {
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    const user = await User.findById(userId).select("_id name email");
+    const user = await User.findById(userId).select("_id name email genres emailVerified");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -98,8 +114,78 @@ export const getCurrentUser = async (req, res) => {
   }
 };
 
+export const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.json({ message: "If that email exists, a reset link has been sent" });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expires = Date.now() + 1000 * 60 * 60; // 1 hour
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = new Date(expires);
+    await user.save();
+
+    const resetUrl = `${getClientBaseUrl()}/reset-password?token=${token}`;
+    console.log(`Password reset link for ${email}: ${resetUrl}`);
+
+    return res.json({ message: "If that email exists, a reset link has been sent" });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to request password reset" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ message: "Token and new password are required" });
+    }
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Reset link is invalid or has expired" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    const authToken = createToken(user._id);
+
+    return res.json({
+      message: "Password has been reset",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        genres: user.genres || [],
+        emailVerified: user.emailVerified,
+      },
+      token: authToken,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to reset password" });
+  }
+};
+
 export const googleAuth = async (req, res) => {
-  console.log("Google auth endpoint hit, body:", req.body);
   try {
     const { credential } = req.body;
 
@@ -129,10 +215,12 @@ export const googleAuth = async (req, res) => {
       user = await User.create({
         name: name || email,
         email,
-        googleID: sub,
+        googleId: sub,
+        genres: [],
+        emailVerified: true,
       });
-    } else if (!user.googleID) {
-      user.googleID = sub;
+    } else if (!user.googleId) {
+      user.googleId = sub;
       await user.save();
     }
 
@@ -143,6 +231,8 @@ export const googleAuth = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        genres: user.genres || [],
+        emailVerified: user.emailVerified,
       },
       token,
     });
@@ -152,4 +242,95 @@ export const googleAuth = async (req, res) => {
   }
 };
 
+export const updatePreferences = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { genres = [] } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { genres },
+      { new: true, select: "_id name email genres" }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({ user });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to update preferences" });
+  }
+};
+
+export const updateEmail = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { email } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const existing = await User.findOne({ email, _id: { $ne: userId } });
+    if (existing) {
+      return res.status(409).json({ message: "Email already in use" });
+    }
+
+    const emailVerificationToken = crypto.randomBytes(32).toString("hex");
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        email,
+        emailVerified: false,
+        emailVerificationToken,
+      },
+      { new: true }
+    ).select("_id name email genres emailVerified");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const verifyUrl = `${getClientBaseUrl()}/verify-email?token=${emailVerificationToken}`;
+    console.log(`Verification email for ${email}: ${verifyUrl}`);
+
+    return res.json({ user });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to update email" });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ message: "Missing verification token" });
+    }
+
+    const user = await User.findOne({ emailVerificationToken: token });
+
+    if (!user) {
+      return res.status(400).json({ message: "Verification link is invalid or has expired" });
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+    await user.save();
+
+    return res.json({ message: "Email successfully verified" });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to verify email" });
+  }
+};
 
