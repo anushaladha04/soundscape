@@ -18,5 +18,5 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-// No custom index on user_id; we rely on MongoDB's default _id index
+// user_id already has unique: true which creates an index, so no need for separate index
 export default models.User || model("User", userSchema);

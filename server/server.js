@@ -1,3 +1,4 @@
+import "./config.js"; // Load environment variables first
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./db.js";

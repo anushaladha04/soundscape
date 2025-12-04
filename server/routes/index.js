@@ -1,6 +1,7 @@
 // server/routes/index.js
 import express from "express";
 import authRoutes from "./auth.js";
+import postsRoutes from "./posts.js";
 import eventRoutes from "./events.js";
 import bookmarksRoutes from "./bookmarks.js";
 import { getRecommendedEvents } from "../controllers/recommendationsController.js";
@@ -16,8 +17,7 @@ router.get("/health", (req, res) => {
 
 // auth routes: /api/auth/...
 router.use("/auth", authRoutes);
-
-// event routes: /api/events/...
+router.use("/posts", postsRoutes);
 router.use("/events", eventRoutes);
 router.get("/events/recommendations", requireAuth, getRecommendedEvents);
 

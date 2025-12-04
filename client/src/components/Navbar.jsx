@@ -15,7 +15,7 @@ const ProfileIcon = () => (
   </svg>
 )
 
-const Navbar = ({ isAuthenticated, onLogout, user }) => {
+const Navbar = ({ isAuthenticated, onLogout, user, onOpenModal }) => {
   const location = useLocation()
   const onLogin = location.pathname === '/login'
   const onSignup = location.pathname === '/signup'
@@ -62,6 +62,14 @@ const Navbar = ({ isAuthenticated, onLogout, user }) => {
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <>
+              {onOpenModal && (
+                <button
+                  onClick={onOpenModal}
+                  className="px-4 py-2 rounded bg-[#f26f5e] hover:bg-[#ff8270] text-sm font-medium text-white"
+                >
+                  Submit a Post
+                </button>
+              )}
               <Link
                 to="/account"
                 className="flex items-center gap-3 text-sm text-gray-300 hover:text-white"
