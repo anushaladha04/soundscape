@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 
 const PAGE_SIZE = 6;
-const API_BASE = "http://localhost:5050/api";
+// Use relative API path so Vite's dev proxy (`/api` → backend) handles requests
+// This avoids CORS issues and works both in dev and production behind the same origin.
+const API_BASE = "/api";
 
 export default function ConcertsPage({ onBookmarkCountChange }) {
   const [artist, setArtist] = useState("");
