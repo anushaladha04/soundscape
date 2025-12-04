@@ -21,6 +21,10 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.0",
+<<<<<<< HEAD
     "react-router-dom": "^7.10.0"
+=======
+    "node-fetch": "^2.7.0"
+>>>>>>> main
   }
 }
