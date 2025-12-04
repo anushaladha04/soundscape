@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const uri = process.env.MONGODB_URI;
-
 export const connectDB = async () => {
+  const uri = process.env.MONGODB_URI;
+  
   if (!uri) {
     console.error("MONGODB_URI is not set");
     process.exit(1);

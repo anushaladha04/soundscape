@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./db.js";
 import apiRoutes from "./routes/index.js";
+import "./config.js"; // Loads dotenv
 
 const app = express();
 
