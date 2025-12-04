@@ -109,7 +109,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/recommendations-ui" element={<Recommendations />} />
           <Route
             path="/login"
             element={
