@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import User from "../models/User.js";
+import Event from "../models/Event.js";
 import { config } from "../config.js";
 import { fetchTicketmasterEvents } from "../services/ticketmasterService.js";
 
@@ -8,6 +9,12 @@ const TM_BASE_URL = "https://app.ticketmaster.com/discovery/v2/events.json";
 const buildKeywordFromGenres = (genres = []) => {
   if (!genres.length) return "music";
   return genres.join(",");
+};
+
+// Keep genre labels consistent across the app
+const normalizeGenres = (genres = []) => {
+  const mapped = genres.map((g) => (g === "Hip-Hop" ? "Hip-Hop/Rap" : g));
+  return Array.from(new Set(mapped));
 };
 
 /**
@@ -27,7 +34,7 @@ export const getRecommendedEvents = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const genres = Array.isArray(user.genres) ? user.genres : [];
+    const genres = Array.isArray(user.genres) ? normalizeGenres(user.genres) : [];
     if (!genres.length) {
       return res.status(400).json({ message: "No genre preferences set" });
     }
@@ -98,7 +105,9 @@ export const getRecommendations = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const userGenres = Array.isArray(user.genres) ? user.genres : [];
+    const userGenres = Array.isArray(user.genres)
+      ? normalizeGenres(user.genres)
+      : [];
     if (userGenres.length === 0) {
       return res.status(200).json({
         recommendations: [],
@@ -107,38 +116,70 @@ export const getRecommendations = async (req, res) => {
       });
     }
 
-    // Fetch events from ALL user's preferred genres
-    const allEvents = [];
-    const genreResults = {};
+    // Use existing events in Mongo (same source as Discover page)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    for (const genre of userGenres) {
-      try {
-        const events = await fetchTicketmasterEvents({
-          classificationName: genre,
-          size: 10,
-        });
-        allEvents.push(...events);
-        genreResults[genre] = events.length;
-      } catch (error) {
-        console.error(`Failed to fetch events for genre ${genre}:`, error.message);
-        genreResults[genre] = 0;
-      }
+    const baseConditions = [{ date: { $gte: today } }];
+
+    // Filter by the user's preferred genres (case-insensitive, partial match)
+    const genreRegexes = userGenres.map(
+      (g) => new RegExp(g.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i")
+    );
+    baseConditions.push({ genre: { $in: genreRegexes } });
+
+    const query = { $and: baseConditions };
+
+    // Fetch up to 200 matching events from the DB
+    const matchingEvents = await Event.find(query).limit(200);
+
+    let pool = [...matchingEvents];
+
+    // If we don't have at least 6 matches for the user's genres, backfill
+    // with other LA events so we can still show a full set of recommendations.
+    if (pool.length < 6) {
+      const usedIds = new Set(pool.map((e) => e._id.toString()));
+
+      const fallbackQuery = {
+        date: { $gte: today },
+      };
+
+      const fallbackEvents = await Event.find(fallbackQuery).limit(200);
+      const fallbackFiltered = fallbackEvents.filter(
+        (e) => !usedIds.has(e._id.toString())
+      );
+
+      pool = pool.concat(fallbackFiltered);
     }
 
-    // Remove duplicates (same event ID)
-    const uniqueEvents = allEvents.filter(
-      (event, index, self) => index === self.findIndex((e) => e.id === event.id)
-    );
+    if (pool.length === 0) {
+      return res.status(200).json({
+        recommendations: [],
+        genres: userGenres,
+        totalAvailable: 0,
+        message:
+          "No matching events found for your preferences yet. Try syncing more events.",
+      });
+    }
 
-    // Shuffle and take 5 random events from all genres
-    const shuffled = uniqueEvents.sort(() => 0.5 - Math.random());
-    const recommendations = shuffled.slice(0, 5);
+    // Shuffle and take up to 4 random events
+    const shuffled = pool.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 4);
+
+    const recommendations = selected.map((e) => ({
+      id: e._id.toString(),
+      name: e.artist || e.venue || "Event",
+      artist: e.artist || null,
+      genre: e.genre || null,
+      city: e.city || null,
+      venue: e.venue || null,
+      date: e.date,
+    }));
 
     res.json({
       recommendations,
       genres: userGenres,
-      genreResults,
-      totalAvailable: uniqueEvents.length,
+      totalAvailable: matchingEvents.length,
     });
   } catch (error) {
     console.error("Recommendations fetch error:", error);
@@ -171,7 +212,7 @@ export const updateGenrePreferences = async (req, res) => {
     // Update user's genre preferences (store in existing `genres` field)
     const user = await User.findByIdAndUpdate(
       userId,
-      { genres },
+      { genres: normalizeGenres(genres) },
       { new: true }
     ).select("name email genres");
 

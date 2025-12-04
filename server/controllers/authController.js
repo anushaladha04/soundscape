@@ -4,9 +4,16 @@ import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 import { config } from "../config.js";
+import { sendPasswordResetEmail } from "../services/emailService.js";
 
 const createToken = (userId) => {
   return jwt.sign({ id: userId }, config.jwtSecret, { expiresIn: "7d" });
+};
+
+// Normalize and deduplicate genre labels across the app
+const normalizeGenres = (genres = []) => {
+  const mapped = genres.map((g) => (g === "Hip-Hop" ? "Hip-Hop/Rap" : g));
+  return Array.from(new Set(mapped));
 };
 
 const googleClient = new OAuth2Client(config.googleClientId);
@@ -37,7 +44,7 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      genres,
+      genres: normalizeGenres(genres),
       emailVerificationToken,
     });
 
@@ -125,7 +132,10 @@ export const requestPasswordReset = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.json({ message: "If that email exists, a reset link has been sent" });
+      // Do not reveal whether the email exists
+      return res.json({
+        message: "If that email exists, a reset link has been sent",
+      });
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -136,9 +146,17 @@ export const requestPasswordReset = async (req, res) => {
     await user.save();
 
     const resetUrl = `${getClientBaseUrl()}/reset-password?token=${token}`;
-    console.log(`Password reset link for ${email}: ${resetUrl}`);
 
-    return res.json({ message: "If that email exists, a reset link has been sent" });
+    try {
+      await sendPasswordResetEmail(email, resetUrl);
+    } catch (emailErr) {
+      console.error("Error sending password reset email:", emailErr);
+      // Still respond generically so we don't leak email existence
+    }
+
+    return res.json({
+      message: "If that email exists, a reset link has been sent",
+    });
   } catch (err) {
     return res.status(500).json({ message: "Failed to request password reset" });
   }
@@ -212,10 +230,17 @@ export const googleAuth = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
+      // Create a secure random password so the required `password` field is satisfied,
+      // while still encouraging users to log in via Google instead of password.
+      const randomPassword = crypto.randomBytes(32).toString("hex");
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
       user = await User.create({
         name: name || email,
         email,
         googleId: sub,
+        password: hashedPassword,
         genres: [],
         emailVerified: true,
       });
@@ -253,7 +278,7 @@ export const updatePreferences = async (req, res) => {
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { genres },
+      { genres: normalizeGenres(genres) },
       { new: true, select: "_id name email genres" }
     );
 
