@@ -2,9 +2,9 @@
 import mongoose from "mongoose";
 import { config } from "./config.js";
 
-const uri = config.mongoUri;
-
 export const connectDB = async () => {
+  const uri = config.mongoUri;
+
   if (!uri) {
     console.error("MONGODB_URI is not set");
     process.exit(1);

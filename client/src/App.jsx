@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import Navbar from './components/Navbar'
@@ -13,6 +12,7 @@ import ConcertsPage from './ConcertsPage'
 import BookmarksPage from './BookmarksPage'
 import Community from './pages/Community'
 import PublicHome from './pages/PublicHome'
+import Recommendations from './components/Recommendations'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -35,7 +35,9 @@ function App() {
         }
         const data = await res.json()
         setUser(data.user)
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
 
     fetchUser()
@@ -108,6 +110,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Community />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/recommendations-ui"
+            element={
+              <ProtectedRoute>
+                <Recommendations />
               </ProtectedRoute>
             }
           />

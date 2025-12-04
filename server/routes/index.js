@@ -5,6 +5,7 @@ import eventRoutes from "./events.js";
 import bookmarksRoutes from "./bookmarks.js";
 import { getRecommendedEvents } from "../controllers/recommendationsController.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
+import recommendationsRoutes from "./recommendations.js";
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.get("/events/recommendations", requireAuth, getRecommendedEvents);
 
 // bookmark routes: /api/bookmarks/...
 router.use("/bookmarks", bookmarksRoutes);
+router.use("/recommendations", recommendationsRoutes);
 
 export default router;
