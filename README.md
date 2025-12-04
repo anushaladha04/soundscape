@@ -147,7 +147,7 @@ Open your browser and navigate to:
 - **Frontend**: `http://localhost:5173`
 - **Backend API**: `http://localhost:5050`
 
-### Application Flow
+## Application Flow
 
 1. **User Registration/Login**
 
@@ -170,15 +170,6 @@ Open your browser and navigate to:
    - User clicks bookmark icon → POST to `/api/bookmarks`
    - Bookmark document created linking User and Event
    - User can view all bookmarks on Bookmarks page
-
-## Security Features
-
-- **Password Hashing**: All passwords are hashed using bcrypt before storage
-- **JWT Authentication**: Secure token-based authentication for API requests
-- **Protected Routes**: Frontend routes require authentication via `ProtectedRoute` component
-- **Input Validation**: Server-side validation for user inputs
-- **CORS Configuration**: Configured to allow requests only from the frontend origin
-- **Environment Variables**: Sensitive data stored in `.env` files (not committed to git)
 
 ## Contributions
 
