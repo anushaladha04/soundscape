@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
-const PAGE_SIZE = 6;
+// 4 rows × 2 columns = 8 events per page
+const PAGE_SIZE = 8;
 // Use relative API path so Vite's dev proxy (`/api` → backend) handles requests
 // This avoids CORS issues and works both in dev and production behind the same origin.
 const API_BASE = "/api";
