@@ -149,11 +149,11 @@ export const requestPasswordReset = async (req, res) => {
 
     try {
       await sendPasswordResetEmail(email, resetUrl);
-      console.log(`✅ Password reset token generated for ${email}`);
+      console.log(`Password reset token generated for ${email}`);
     } catch (emailErr) {
-      console.error("❌ Error sending password reset email:", emailErr.message);
+      console.error("Error sending password reset email:", emailErr.message);
       // Log the reset URL so user can still reset manually if needed
-      console.warn(`⚠️  Manual reset link for ${email}: ${resetUrl}`);
+      console.warn(`Manual reset link for ${email}: ${resetUrl}`);
       // Still respond generically so we don't leak email existence
     }
 
