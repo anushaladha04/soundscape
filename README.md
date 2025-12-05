@@ -153,7 +153,7 @@ Open your browser and navigate to:
 ![ER Diagram](ER_Diagram.png)
 
 ## Component Diagram
-![Component Diagram](Component__Diagram.png)
+![Component Diagram](Component.png)
 
 ## Application Flow
 
