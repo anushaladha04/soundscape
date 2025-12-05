@@ -166,7 +166,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
             className="p-4 rounded-lg"
             style={{ 
               backgroundColor: '#1a1a1a',
-              border: '1px solid rgba(168, 85, 247, 0.3)'
+              border: '1px solid rgba(242, 111, 94, 0.3)'
             }}
           >
             <div className="flex items-start gap-3">
@@ -175,8 +175,8 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                 style={{ 
                   width: '24px',
                   height: '24px',
-                  backgroundColor: 'rgba(168, 85, 247, 0.2)',
-                  color: '#a855f7'
+                  backgroundColor: 'rgba(242, 111, 94, 0.2)',
+                  color: '#f26f5e'
                 }}
               >
                 <span className="text-xs font-bold">i</span>
@@ -196,9 +196,9 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
           {/* Event Details Section */}
           <div 
             className="p-6 rounded-lg"
-            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(168, 85, 247, 0.3)' }}
+            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(242, 111, 94, 0.3)' }}
           >
-            <h3 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#f26f5e' }}>
               <span className="text-2xl">🎵</span>
               Event Details
             </h3>
@@ -220,7 +220,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                  onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 />
               </div>
@@ -241,7 +241,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                  onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 />
               </div>
@@ -260,7 +260,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                  onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 >
                   <option value="rock">Rock</option>
@@ -280,9 +280,9 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
           {/* Date & Time Section */}
           <div 
             className="p-6 rounded-lg"
-            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(168, 85, 247, 0.3)' }}
+            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(242, 111, 94, 0.3)' }}
           >
-            <h3 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#f26f5e' }}>
               <span className="text-2xl">📅</span>
               Date & Time
             </h3>
@@ -303,7 +303,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                  onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 />
               </div>
@@ -323,7 +323,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                  onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 />
               </div>
@@ -333,9 +333,9 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
           {/* Location Section */}
           <div 
             className="p-6 rounded-lg"
-            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(168, 85, 247, 0.3)' }}
+            style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(242, 111, 94, 0.3)' }}
           >
-            <h3 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#f26f5e' }}>
               <span className="text-2xl">📍</span>
               Location
             </h3>
@@ -357,7 +357,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                  onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 />
               </div>
@@ -378,7 +378,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                  onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 />
               </div>
@@ -400,7 +400,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                       backgroundColor: '#0f0f0f',
                       border: '1px solid #2a2a2a'
                     }}
-                    onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                    onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                     onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                   />
                 </div>
@@ -420,7 +420,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                       backgroundColor: '#0f0f0f',
                       border: '1px solid #2a2a2a'
                     }}
-                    onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                    onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                     onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                   />
                 </div>
@@ -441,7 +441,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
                     backgroundColor: '#0f0f0f',
                     border: '1px solid #2a2a2a'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#a855f7'}
+                  onFocus={(e) => e.target.style.borderColor = '#f26f5e'}
                   onBlur={(e) => e.target.style.borderColor = '#2a2a2a'}
                 />
               </div>
@@ -453,10 +453,10 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
             disabled={isLoading}
             className="w-full py-3 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: '#ff6b6b'
+              backgroundColor: '#f26f5e'
             }}
-            onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = '#ff5252')}
-            onMouseLeave={(e) => !isLoading && (e.target.style.backgroundColor = '#ff6b6b')}
+            onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = '#ff8270')}
+            onMouseLeave={(e) => !isLoading && (e.target.style.backgroundColor = '#f26f5e')}
           >
             {isLoading ? 'Submitting...' : 'Submit Event for Review'}
           </button>
