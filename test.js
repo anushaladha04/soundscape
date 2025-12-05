@@ -1,4 +1,3 @@
-// API Testing Suite 
 //
 //3 end to end tests
 // 1. User Registration & Recommendations Flow 
