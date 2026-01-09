@@ -29,7 +29,7 @@ const Signup = ({ onAuthSuccess }) => {
       try {
         google.accounts.id.initialize({
           client_id:
-            '804265354120-k7vhqk03er8vcfslqsokpgbk4p7kqmpb.apps.googleusercontent.com',
+            '445122271174-gcc16hsd431c8pirphollckoi89ujprn.apps.googleusercontent.com',
           callback: async (response) => {
             try {
               const res = await fetch(`${API_BASE}/auth/google`, {
