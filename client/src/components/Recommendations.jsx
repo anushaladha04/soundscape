@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import API_BASE from '../config.js'
 
 function Recommendations() {
   const [recommendations, setRecommendations] = useState([])
@@ -26,7 +27,7 @@ function Recommendations() {
         return
       }
 
-      const res = await fetch('/api/recommendations', {
+      const res = await fetch(`${API_BASE}/recommendations`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,7 +59,7 @@ function Recommendations() {
         return
       }
 
-      const res = await fetch('/api/recommendations/preferences', {
+      const res = await fetch(`${API_BASE}/recommendations/preferences`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

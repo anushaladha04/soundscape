@@ -4,7 +4,7 @@
 // 2. Event Discovery & Bookmarking 
 // 3. Event Sync & Filtered Discovery 
 
-const BASE_URL = 'http://localhost:5050';
+const BASE_URL = import.meta.env.VITE_API_URL
 
 // E2E Test #1 
 let authToken = '';

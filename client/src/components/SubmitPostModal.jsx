@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import API_BASE from '../config.js';
 
 export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
   const [formData, setFormData] = useState({
@@ -31,7 +32,7 @@ export default function SubmitPostModal({ isOpen, onClose, onPostSubmitted }) {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      const res = await fetch('/api/posts', {
+      const res = await fetch(`${API_BASE}/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

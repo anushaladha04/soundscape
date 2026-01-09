@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import API_BASE from '../../config.js'
 
 const allGenres = [
   'Rock',
@@ -45,7 +46,7 @@ const PreferencesOnboarding = ({ user, onUserUpdate }) => {
 
     setIsSubmitting(true)
     try {
-      const res = await fetch('/api/auth/preferences', {
+      const res = await fetch(`${API_BASE}/auth/preferences`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

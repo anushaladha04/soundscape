@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import API_BASE from '../../config.js'
 
 const Login = ({ onAuthSuccess }) => {
   const [email, setEmail] = useState('')
@@ -28,7 +29,7 @@ const Login = ({ onAuthSuccess }) => {
             '804265354120-k7vhqk03er8vcfslqsokpgbk4p7kqmpb.apps.googleusercontent.com',
           callback: async (response) => {
             try {
-              const res = await fetch('/api/auth/google', {
+              const res = await fetch(`${API_BASE}/auth/google`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ credential: response.credential }),
@@ -70,7 +71,7 @@ const Login = ({ onAuthSuccess }) => {
 
     setIsSubmitting(true)
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

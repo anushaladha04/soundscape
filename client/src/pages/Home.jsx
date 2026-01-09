@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import API_BASE from '../config.js'
 
 const EVENTS = [
   { 
@@ -52,8 +53,6 @@ const Home = ({ user }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [bookmarkedIds, setBookmarkedIds] = useState([])
-
-  const API_BASE = '/api'
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Date TBA'
@@ -170,7 +169,7 @@ const Home = ({ user }) => {
       setError('')
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('/api/recommendations', {
+        const res = await fetch(`${API_BASE}/recommendations`, {
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
           },

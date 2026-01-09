@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
+import API_BASE from './config.js'
 import Navbar from './components/Navbar'
 import SubmitPostModal from './components/SubmitPostModal'
 import Login from './pages/auth/Login'
@@ -29,7 +30,7 @@ function App() {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!res.ok) {

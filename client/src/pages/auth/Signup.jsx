@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import API_BASE from '../../config.js'
 
 const Signup = ({ onAuthSuccess }) => {
   const [name, setName] = useState('')
@@ -31,7 +32,7 @@ const Signup = ({ onAuthSuccess }) => {
             '804265354120-k7vhqk03er8vcfslqsokpgbk4p7kqmpb.apps.googleusercontent.com',
           callback: async (response) => {
             try {
-              const res = await fetch('/api/auth/google', {
+              const res = await fetch(`${API_BASE}/auth/google`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ credential: response.credential }),
@@ -46,7 +47,7 @@ const Signup = ({ onAuthSuccess }) => {
 
               if (genres.length > 0) {
                 try {
-                  const prefRes = await fetch('/api/auth/preferences', {
+                  const prefRes = await fetch(`${API_BASE}/auth/preferences`, {
                     method: 'PUT',
                     headers: {
                       'Content-Type': 'application/json',
@@ -113,7 +114,7 @@ const Signup = ({ onAuthSuccess }) => {
 
     setIsSubmitting(true)
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, genres }),

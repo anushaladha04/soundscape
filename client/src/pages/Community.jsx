@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getUserId } from '../utils/userId';
+import API_BASE from '../config.js';
 
 // svg icon components: AI generated
 const ClockIcon = () => (
@@ -39,7 +40,7 @@ export default function Community({ onOpenModal }) {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/posts');
+      const res = await fetch(`${API_BASE}/posts`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -53,7 +54,7 @@ export default function Community({ onOpenModal }) {
       // Fetch user votes for all posts
       const userId = getUserId();
       const votePromises = postsData.map(post =>
-        fetch(`/api/posts/${post._id}/vote?userId=${userId}`)
+        fetch(`${API_BASE}/posts/${post._id}/vote?userId=${userId}`)
           .then(res => res.json())
           .then(data => ({ postId: post._id, vote: data.userVote }))
           .catch(() => ({ postId: post._id, vote: null }))
@@ -87,7 +88,7 @@ export default function Community({ onOpenModal }) {
 
     try {
       // Send the vote type - backend will handle unvoting if same type is clicked again
-      const res = await fetch(`/api/posts/${postId}/vote`, {
+      const res = await fetch(`${API_BASE}/posts/${postId}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, voteType }),

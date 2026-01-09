@@ -3,14 +3,26 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./db.js";
 import apiRoutes from "./routes/index.js";
-import "./config.js"; // Loads dotenv
 
 const app = express();
 
-// Allow frontend (Vite dev server) to send cookies/auth to this API
+// Allow frontend (local dev + production Render)
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins.length === 1
+      ? allowedOrigins[0]
+      : (origin, callback) => {
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
     credentials: true,
   })
 );

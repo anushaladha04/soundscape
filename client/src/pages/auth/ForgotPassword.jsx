@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import API_BASE from '../../config.js'
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('')
@@ -20,7 +21,7 @@ const ForgotPassword = () => {
 
     setIsSubmitting(true)
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

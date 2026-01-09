@@ -1,6 +1,7 @@
 /* global google */
 import { useEffect, useState } from 'react'
 import './App.css'
+import API_BASE from './config.js'
 
 function AuthTester() {
   const [status, setStatus] = useState('Checking backend...')
@@ -11,7 +12,7 @@ function AuthTester() {
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const res = await fetch('/api/health')
+        const res = await fetch(`${API_BASE}/health`)
         if (!res.ok) {
           throw new Error(`Request failed with status ${res.status}`)
         }
@@ -44,7 +45,7 @@ function AuthTester() {
           client_id: '804265354120-k7vhqk03er8vcfslqsokpgbk4p7kqmpb.apps.googleusercontent.com',
           callback: async (response) => {
             try {
-              const res = await fetch('/api/auth/google', {
+              const res = await fetch(`${API_BASE}/auth/google`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ credential: response.credential }),
@@ -83,7 +84,7 @@ function AuthTester() {
     e.preventDefault()
     setAuthResult('')
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -103,7 +104,7 @@ function AuthTester() {
     e.preventDefault()
     setAuthResult('')
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email, password: form.password }),
