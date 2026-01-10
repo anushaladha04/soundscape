@@ -1,6 +1,6 @@
 # Soundscape
 
-**Soundscape** is a full-stack web application for discovering and managing live music events in the Los Angeles area. Users can explore concerts, personalize recommendations based on their music preferences, bookmark favorite events, view/upload community posts, and manage their account settings.
+**Soundscape** is a full-stack web application for discovering and managing live music events in the Los Angeles area. Users can explore concerts, personalize recommendations based on their music preferences, bookmark favorite events, view/upload community posts, and manage their account settings. The deployment link can be found in the About section of the GitHub (link: https://soundscape-frontend-83ag.onrender.com).
 
 ## Features
 
